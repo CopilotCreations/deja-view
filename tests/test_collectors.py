@@ -9,13 +9,13 @@ from pathlib import Path
 from queue import Queue
 from unittest.mock import MagicMock, patch, AsyncMock
 
-from fortuna_prismatica.models import Event, EventType
-from fortuna_prismatica.collectors.base import BaseCollector
-from fortuna_prismatica.collectors.filesystem import FilesystemCollector, FilesystemEventHandler
-from fortuna_prismatica.collectors.git import GitCollector
-from fortuna_prismatica.collectors.process import ProcessCollector
-from fortuna_prismatica.collectors.terminal import TerminalCollector
-from fortuna_prismatica.collectors.browser import BrowserCollector
+from deja_view.models import Event, EventType
+from deja_view.collectors.base import BaseCollector
+from deja_view.collectors.filesystem import FilesystemCollector, FilesystemEventHandler
+from deja_view.collectors.git import GitCollector
+from deja_view.collectors.process import ProcessCollector
+from deja_view.collectors.terminal import TerminalCollector
+from deja_view.collectors.browser import BrowserCollector
 
 
 class TestBaseCollector:

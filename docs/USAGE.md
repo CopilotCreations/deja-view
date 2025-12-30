@@ -1,6 +1,6 @@
 # Usage Guide
 
-This guide provides comprehensive instructions for using Fortuna Prismatica.
+This guide provides comprehensive instructions for using Deja View.
 
 ## Table of Contents
 
@@ -24,8 +24,8 @@ This guide provides comprehensive instructions for using Fortuna Prismatica.
 
 ```bash
 # Clone the repository
-git clone https://github.com/user/fortuna-prismatica.git
-cd fortuna-prismatica
+git clone https://github.com/user/deja-view.git
+cd deja-view
 
 # Create and activate virtual environment
 python -m venv venv
@@ -41,7 +41,7 @@ pip install -r requirements.txt
 
 ```bash
 python run.py version
-# Output: Fortuna Prismatica v0.1.0
+# Output: Deja View v0.1.0
 ```
 
 ## Starting the Agent
@@ -55,7 +55,7 @@ python run.py start
 ```
 
 The agent will:
-1. Create the data directory (`~/.fortuna`)
+1. Create the data directory (`~/.deja`)
 2. Initialize the database
 3. Start all collectors
 4. Begin recording activity
@@ -79,12 +79,12 @@ python run.py status
 Example output:
 ```
 ╭──────────────────────────────────────╮
-│      Fortuna Prismatica Status       │
+│      Deja View Status                │
 ├─────────────────┬────────────────────┤
 │ Property        │ Value              │
 ├─────────────────┼────────────────────┤
 │ Version         │ 0.1.0              │
-│ Data Directory  │ /home/user/.fortuna│
+│ Data Directory  │ /home/user/.deja   │
 │ Status          │ Running            │
 │ PID             │ 12345              │
 │ Total Events    │ 1,234              │
@@ -106,7 +106,7 @@ python run.py stop
 
 ### Event Types
 
-Fortuna Prismatica captures the following event types:
+Deja View captures the following event types:
 
 | Type | Description | Source |
 |------|-------------|--------|
@@ -347,26 +347,26 @@ cp .env.example .env
 
 ```bash
 # Data storage location
-FORTUNA_DATA_DIR=~/.fortuna
+DEJA_DATA_DIR=~/.deja
 
 # Logging level (DEBUG, INFO, WARNING, ERROR)
-FORTUNA_LOG_LEVEL=INFO
+DEJA_LOG_LEVEL=INFO
 
 # Collection intervals (seconds)
-FORTUNA_PROCESS_POLL_INTERVAL=30
-FORTUNA_SHELL_HISTORY_POLL_INTERVAL=60
-FORTUNA_BROWSER_POLL_INTERVAL=300
+DEJA_PROCESS_POLL_INTERVAL=30
+DEJA_SHELL_HISTORY_POLL_INTERVAL=60
+DEJA_BROWSER_POLL_INTERVAL=300
 
 # Activity window size for analysis (minutes)
-FORTUNA_ACTIVITY_WINDOW_MINUTES=15
+DEJA_ACTIVITY_WINDOW_MINUTES=15
 
 # Paths to monitor (comma-separated)
-FORTUNA_WATCH_PATHS=~,~/Documents,~/Projects
+DEJA_WATCH_PATHS=~,~/Documents,~/Projects
 ```
 
 ### Directories Monitored
 
-By default, Fortuna monitors:
+By default, Deja View monitors:
 - Your home directory
 - Common project directories (Documents, Projects, Code, etc.)
 
@@ -388,12 +388,12 @@ Files matching these patterns are ignored:
 
 2. Check for stale PID file:
    ```bash
-   rm ~/.fortuna/fortuna.pid
+   rm ~/.deja/deja.pid
    ```
 
 3. Check logs:
    ```bash
-   cat ~/.fortuna/fortuna.log
+   cat ~/.deja/deja.log
    ```
 
 ### No Events Being Collected
@@ -411,7 +411,7 @@ Files matching these patterns are ignored:
 
 Reset the database:
 ```bash
-rm ~/.fortuna/events.duckdb
+rm ~/.deja/events.duckdb
 python run.py start
 ```
 
@@ -439,7 +439,7 @@ python run.py start
 ## Best Practices
 
 1. **Start at login**: Add to startup scripts for continuous tracking
-2. **Regular backups**: Back up `~/.fortuna` periodically
+2. **Regular backups**: Back up `~/.deja` periodically
 3. **Review weekly**: Check context switches and stalls weekly
 4. **Tune intervals**: Adjust polling intervals based on needs
 5. **Monitor disk usage**: Large databases may need cleanup

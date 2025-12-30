@@ -1,3 +1,3 @@
 """
-Tests package for Fortuna Prismatica.
+Tests package for Deja View.
 """

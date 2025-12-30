@@ -1,5 +1,5 @@
 """
-Daemon module for Fortuna Prismatica.
+Daemon module for Deja View.
 
 Provides the core daemon functionality for running collectors
 and managing the agent lifecycle.
@@ -14,9 +14,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable, List, Optional
 
-from fortuna_prismatica.analysis.graph import ActivityGraph
-from fortuna_prismatica.analysis.inference import InferenceEngine
-from fortuna_prismatica.collectors import (
+from deja_view.analysis.graph import ActivityGraph
+from deja_view.analysis.inference import InferenceEngine
+from deja_view.collectors import (
     BaseCollector,
     BrowserCollector,
     FilesystemCollector,
@@ -24,14 +24,14 @@ from fortuna_prismatica.collectors import (
     ProcessCollector,
     TerminalCollector,
 )
-from fortuna_prismatica.config import Config, get_config
-from fortuna_prismatica.models import Event
-from fortuna_prismatica.storage.database import EventDatabase
+from deja_view.config import Config, get_config
+from deja_view.models import Event
+from deja_view.storage.database import EventDatabase
 
 
 class Daemon:
     """
-    Main daemon class for the Fortuna Prismatica agent.
+    Main daemon class for the Deja View agent.
     
     Manages collector lifecycle, event storage, and periodic
     analysis tasks. Runs as a long-lived asyncio process.
@@ -46,7 +46,7 @@ class Daemon:
                    Uses global config if not provided.
         """
         self.config = config or get_config()
-        self.logger = logging.getLogger("fortuna.daemon")
+        self.logger = logging.getLogger("deja.daemon")
         
         # Core components
         self.database: Optional[EventDatabase] = None
@@ -79,7 +79,7 @@ class Daemon:
         file_handler.setFormatter(formatter)
         
         # Configure root logger
-        root_logger = logging.getLogger("fortuna")
+        root_logger = logging.getLogger("deja.)
         root_logger.setLevel(log_level)
         root_logger.addHandler(console_handler)
         root_logger.addHandler(file_handler)
@@ -197,7 +197,7 @@ class Daemon:
         # Setup logging
         self._setup_logging()
         
-        self.logger.info("Starting Fortuna Prismatica daemon...")
+        self.logger.info("Starting Deja View daemon...")
         
         # Initialize core components
         self.database = EventDatabase()

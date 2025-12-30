@@ -1,5 +1,5 @@
 """
-Activity graph for Fortuna Prismatica.
+Activity graph for Deja View.
 
 Builds and maintains a networkx graph representing relationships
 between files, repositories, URLs, commands, and processes.
@@ -14,8 +14,8 @@ from typing import Dict, List, Optional, Set, Tuple, Any
 
 import networkx as nx
 
-from fortuna_prismatica.config import get_config
-from fortuna_prismatica.models import ActivityWindow, Event, EventType
+from deja_view.config import get_config
+from deja_view.models import ActivityWindow, Event, EventType
 
 
 class ActivityGraph:
@@ -46,7 +46,7 @@ class ActivityGraph:
         """
         config = get_config()
         self.graph_path = graph_path or config.graph_path
-        self.logger = logging.getLogger("fortuna.analysis.graph")
+        self.logger = logging.getLogger("deja.analysis.graph")
         self._graph = nx.Graph()
         
         # Ensure parent directory exists

@@ -1,10 +1,10 @@
 # Architecture
 
-This document describes the architecture of Fortuna Prismatica, a privacy-first local daemon for tracking and analyzing digital activity.
+This document describes the architecture of Deja View, a privacy-first local daemon for tracking and analyzing digital activity.
 
 ## System Overview
 
-Fortuna Prismatica is designed as a modular, asyncio-based system with clear separation of concerns between collection, storage, analysis, and reporting.
+Deja View is designed as a modular, asyncio-based system with clear separation of concerns between collection, storage, analysis, and reporting.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -261,7 +261,7 @@ Modify `TASK_PATTERNS` in `InferenceEngine` to recognize new activity types.
 ## File Organization
 
 ```
-src/fortuna_prismatica/
+src/deja_view/
 ├── __init__.py          # Package metadata
 ├── cli.py               # CLI interface
 ├── config.py            # Configuration management

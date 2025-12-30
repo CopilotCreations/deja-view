@@ -1,5 +1,5 @@
 """
-Narrative generation for Fortuna Prismatica.
+Narrative generation for Deja View.
 
 Generates Markdown explanations of user activity based on
 analyzed events and activity windows. Uses rule-based
@@ -11,10 +11,10 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple, Any
 
-from fortuna_prismatica.analysis.graph import ActivityGraph
-from fortuna_prismatica.analysis.inference import InferenceEngine
-from fortuna_prismatica.models import ActivityWindow, Event, EventType
-from fortuna_prismatica.storage.database import EventDatabase
+from deja_view.analysis.graph import ActivityGraph
+from deja_view.analysis.inference import InferenceEngine
+from deja_view.models import ActivityWindow, Event, EventType
+from deja_view.storage.database import EventDatabase
 
 
 class NarrativeGenerator:
@@ -61,7 +61,7 @@ class NarrativeGenerator:
         self.graph = graph
         self.inference = inference_engine or InferenceEngine()
         self.llm_hook = llm_hook
-        self.logger = logging.getLogger("fortuna.reporting.narrative")
+        self.logger = logging.getLogger("deja.reporting.narrative")
     
     def _format_duration(self, seconds: float) -> str:
         """Format a duration in human-readable form."""

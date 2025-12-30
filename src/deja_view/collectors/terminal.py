@@ -1,5 +1,5 @@
 """
-Terminal activity collector for Fortuna Prismatica.
+Terminal activity collector for Deja View.
 
 Parses shell history files (bash/zsh) to capture command history.
 Associates commands with timestamps where available.
@@ -12,9 +12,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import AsyncIterator, Dict, List, Optional, Set
 
-from fortuna_prismatica.collectors.base import BaseCollector
-from fortuna_prismatica.config import get_config
-from fortuna_prismatica.models import Event, EventType
+from deja_view.collectors.base import BaseCollector
+from deja_view.config import get_config
+from deja_view.models import Event, EventType
 
 
 class TerminalCollector(BaseCollector):

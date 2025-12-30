@@ -1,5 +1,5 @@
 """
-Git activity collector for Fortuna Prismatica.
+Git activity collector for Deja View.
 
 Monitors git repositories for commits, branch changes, and other activity.
 Polls git repositories found in watched directories.
@@ -11,9 +11,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import AsyncIterator, Dict, List, Optional, Set
 
-from fortuna_prismatica.collectors.base import BaseCollector
-from fortuna_prismatica.config import get_config
-from fortuna_prismatica.models import Event, EventType
+from deja_view.collectors.base import BaseCollector
+from deja_view.config import get_config
+from deja_view.models import Event, EventType
 
 
 class GitCollector(BaseCollector):

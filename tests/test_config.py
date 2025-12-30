@@ -6,7 +6,7 @@ import os
 import pytest
 from pathlib import Path
 
-from fortuna_prismatica.config import (
+from deja_view.config import (
     Config,
     get_config,
     set_config,
@@ -69,9 +69,9 @@ class TestConfig:
     
     def test_config_from_env(self, temp_data_dir, monkeypatch):
         """Test configuration from environment variables."""
-        monkeypatch.setenv("FORTUNA_DATA_DIR", str(temp_data_dir))
-        monkeypatch.setenv("FORTUNA_LOG_LEVEL", "WARNING")
-        monkeypatch.setenv("FORTUNA_PROCESS_POLL_INTERVAL", "45")
+        monkeypatch.setenv("DEJA_DATA_DIR", str(temp_data_dir))
+        monkeypatch.setenv("DEJA_LOG_LEVEL", "WARNING")
+        monkeypatch.setenv("DEJA_PROCESS_POLL_INTERVAL", "45")
         
         config = Config.from_env()
         

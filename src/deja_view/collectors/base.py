@@ -1,5 +1,5 @@
 """
-Base collector interface for Fortuna Prismatica.
+Base collector interface for Deja View.
 
 Defines the abstract base class that all collectors must implement.
 Provides common functionality for event collection and lifecycle management.
@@ -10,7 +10,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import AsyncIterator, Callable, Optional
 
-from fortuna_prismatica.models import Event
+from deja_view.models import Event
 
 
 class BaseCollector(ABC):
@@ -29,7 +29,7 @@ class BaseCollector(ABC):
             name: Unique identifier for this collector
         """
         self.name = name
-        self.logger = logging.getLogger(f"fortuna.collectors.{name}")
+        self.logger = logging.getLogger(f"deja.collectors.{name}")
         self._running = False
         self._event_callback: Optional[Callable[[Event], None]] = None
         self._task: Optional[asyncio.Task] = None

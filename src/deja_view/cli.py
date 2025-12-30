@@ -1,5 +1,5 @@
 """
-CLI interface for Fortuna Prismatica.
+CLI interface for Deja View.
 
 Provides the command-line interface for managing the agent
 and querying activity data.
@@ -18,18 +18,18 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from fortuna_prismatica import __version__
-from fortuna_prismatica.analysis.graph import ActivityGraph
-from fortuna_prismatica.analysis.inference import InferenceEngine
-from fortuna_prismatica.config import get_config, set_config, Config
-from fortuna_prismatica.daemon import get_daemon_pid, is_daemon_running, run_daemon
-from fortuna_prismatica.reporting.narrative import NarrativeGenerator
-from fortuna_prismatica.storage.database import EventDatabase
+from deja_view import __version__
+from deja_view.analysis.graph import ActivityGraph
+from deja_view.analysis.inference import InferenceEngine
+from deja_view.config import get_config, set_config, Config
+from deja_view.daemon import get_daemon_pid, is_daemon_running, run_daemon
+from deja_view.reporting.narrative import NarrativeGenerator
+from deja_view.storage.database import EventDatabase
 
 # Create CLI app
 app = typer.Typer(
-    name="fortuna",
-    help="Fortuna Prismatica - Personal Background Agent OS",
+    name="deja.,
+    help="Deja View - Personal Background Agent OS",
     add_completion=False,
 )
 
@@ -63,7 +63,7 @@ def start(
         help="Enable verbose logging"
     ),
 ) -> None:
-    """Start the Fortuna Prismatica agent."""
+    """Start the Deja View agent."""
     
     # Check if already running
     if is_daemon_running():
@@ -92,7 +92,7 @@ def start(
         
         if not script.exists():
             # Fall back to module execution
-            cmd = [python, "-m", "fortuna_prismatica.cli", "start", "--foreground"]
+            cmd = [python, "-m", "deja_view.cli", "start", "--foreground"]
         else:
             cmd = [python, str(script), "start", "--foreground"]
         
@@ -120,7 +120,7 @@ def start(
 
 @app.command()
 def stop() -> None:
-    """Stop the Fortuna Prismatica agent."""
+    """Stop the Deja View agent."""
     
     pid = get_daemon_pid()
     if not pid:
@@ -161,13 +161,13 @@ def stop() -> None:
 
 @app.command()
 def status() -> None:
-    """Show the status of the Fortuna Prismatica agent."""
+    """Show the status of the Deja View agent."""
     
     config = get_config()
     pid = get_daemon_pid()
     
     # Create status table
-    table = Table(title="Fortuna Prismatica Status")
+    table = Table(title="Deja View Status")
     table.add_column("Property", style="cyan")
     table.add_column("Value", style="white")
     
@@ -446,7 +446,7 @@ def graph_stats() -> None:
 @app.command()
 def version() -> None:
     """Show version information."""
-    console.print(f"Fortuna Prismatica v{__version__}")
+    console.print(f"Deja View v{__version__}")
 
 
 @app.callback()
@@ -454,7 +454,7 @@ def main(
     ctx: typer.Context,
 ) -> None:
     """
-    Fortuna Prismatica - Personal Background Agent OS
+    Deja View - Personal Background Agent OS
     
     A privacy-first local daemon that continuously records, correlates,
     and explains your background digital activity.

@@ -1,6 +1,6 @@
-# Fortuna Prismatica
+# Deja View
 
-[![CI](https://github.com/user/fortuna-prismatica/actions/workflows/ci.yml/badge.svg)](https://github.com/user/fortuna-prismatica/actions/workflows/ci.yml)
+[![CI](https://github.com/user/deja-view/actions/workflows/ci.yml/badge.svg)](https://github.com/user/deja-view/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Fortuna Prismatica is a local-first, privacy-focused system that passively observes your digital activity and provides intelligent insights about your work patterns. It runs as a background daemon, collecting events from various sources and using rule-based inference to help you understand:
+Deja View is a local-first, privacy-focused system that passively observes your digital activity and provides intelligent insights about your work patterns. It runs as a background daemon, collecting events from various sources and using rule-based inference to help you understand:
 
 - What you were doing in a specific time period
 - Why certain tasks stalled
@@ -52,8 +52,8 @@ Fortuna Prismatica is a local-first, privacy-focused system that passively obser
 
 ```bash
 # Clone the repository
-git clone https://github.com/user/fortuna-prismatica.git
-cd fortuna-prismatica
+git clone https://github.com/user/deja-view.git
+cd deja-view
 
 # Create virtual environment
 python -m venv venv
@@ -159,13 +159,13 @@ cp .env.example .env
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `FORTUNA_DATA_DIR` | Data storage directory | `~/.fortuna` |
-| `FORTUNA_LOG_LEVEL` | Logging level | `INFO` |
-| `FORTUNA_PROCESS_POLL_INTERVAL` | Process sampling interval (seconds) | `30` |
-| `FORTUNA_SHELL_HISTORY_POLL_INTERVAL` | Shell history poll interval | `60` |
-| `FORTUNA_BROWSER_POLL_INTERVAL` | Browser history poll interval | `300` |
-| `FORTUNA_ACTIVITY_WINDOW_MINUTES` | Activity window size | `15` |
-| `FORTUNA_WATCH_PATHS` | Directories to watch (comma-separated) | Home directory |
+| `DEJA_DATA_DIR` | Data storage directory | `~/.deja` |
+| `DEJA_LOG_LEVEL` | Logging level | `INFO` |
+| `DEJA_PROCESS_POLL_INTERVAL` | Process sampling interval (seconds) | `30` |
+| `DEJA_SHELL_HISTORY_POLL_INTERVAL` | Shell history poll interval | `60` |
+| `DEJA_BROWSER_POLL_INTERVAL` | Browser history poll interval | `300` |
+| `DEJA_ACTIVITY_WINDOW_MINUTES` | Activity window size | `15` |
+| `DEJA_WATCH_PATHS` | Directories to watch (comma-separated) | Home directory |
 
 ## Architecture
 
@@ -215,19 +215,19 @@ pip install -r requirements.txt
 pytest tests/ -v
 
 # Run tests with coverage
-pytest tests/ --cov=src/fortuna_prismatica --cov-report=html
+pytest tests/ --cov=src/deja_view --cov-report=html
 
 # Run linter
 ruff check src/ tests/
 
 # Run type checker
-mypy src/fortuna_prismatica
+mypy src/deja_view
 ```
 
 ### Project Structure
 
 ```
-fortuna-prismatica/
+deja-view/
 ├── run.py                # Application entry point
 ├── requirements.txt      # Python dependencies
 ├── .env.example         # Example environment file
@@ -236,7 +236,7 @@ fortuna-prismatica/
 ├── .github/workflows/   # GitHub Actions CI/CD
 │   └── ci.yml
 │
-├── src/fortuna_prismatica/
+├── src/deja_view/
 │   ├── __init__.py
 │   ├── cli.py           # CLI interface (Typer)
 │   ├── config.py        # Configuration management

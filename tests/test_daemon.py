@@ -7,8 +7,8 @@ import pytest
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from fortuna_prismatica.daemon import Daemon, get_daemon_pid, is_daemon_running
-from fortuna_prismatica.models import Event, EventType
+from deja_view.daemon import Daemon, get_daemon_pid, is_daemon_running
+from deja_view.models import Event, EventType
 
 
 class TestDaemon:
@@ -49,8 +49,8 @@ class TestDaemon:
     def test_handle_event(self, daemon, test_config):
         """Test event handling."""
         # Manually initialize components
-        from fortuna_prismatica.storage.database import EventDatabase
-        from fortuna_prismatica.analysis.graph import ActivityGraph
+        from deja_view.storage.database import EventDatabase
+        from deja_view.analysis.graph import ActivityGraph
         
         daemon.database = EventDatabase(test_config.database_path)
         daemon.database.connect()
@@ -109,7 +109,7 @@ class TestDaemonPidManagement:
     def test_pid_file_cleanup(self, test_config):
         """Test PID file is created and cleaned up."""
         import asyncio
-        from fortuna_prismatica.daemon import Daemon
+        from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
         
@@ -134,8 +134,8 @@ class TestDaemonCollectors:
     
     def test_init_collectors(self, daemon, test_config):
         """Test collector initialization."""
-        from fortuna_prismatica.storage.database import EventDatabase
-        from fortuna_prismatica.analysis.graph import ActivityGraph
+        from deja_view.storage.database import EventDatabase
+        from deja_view.analysis.graph import ActivityGraph
         
         daemon.database = EventDatabase(test_config.database_path)
         daemon.database.connect()

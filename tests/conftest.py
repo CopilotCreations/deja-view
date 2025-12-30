@@ -1,5 +1,5 @@
 """
-Test configuration for Fortuna Prismatica.
+Test configuration for Deja View.
 """
 
 import pytest
@@ -8,7 +8,7 @@ import shutil
 import os
 from pathlib import Path
 
-from fortuna_prismatica.config import Config, set_config
+from deja_view.config import Config, set_config
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def test_config(temp_data_dir):
 def sample_events():
     """Create sample events for testing."""
     from datetime import datetime, timedelta
-    from fortuna_prismatica.models import Event, EventType
+    from deja_view.models import Event, EventType
     
     base_time = datetime.now()
     

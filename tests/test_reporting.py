@@ -6,11 +6,11 @@ import pytest
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from fortuna_prismatica.models import Event, EventType, ActivityWindow
-from fortuna_prismatica.analysis.graph import ActivityGraph
-from fortuna_prismatica.analysis.inference import InferenceEngine
-from fortuna_prismatica.reporting.narrative import NarrativeGenerator
-from fortuna_prismatica.storage.database import EventDatabase
+from deja_view.models import Event, EventType, ActivityWindow
+from deja_view.analysis.graph import ActivityGraph
+from deja_view.analysis.inference import InferenceEngine
+from deja_view.reporting.narrative import NarrativeGenerator
+from deja_view.storage.database import EventDatabase
 
 
 class TestNarrativeGenerator:

@@ -1,10 +1,10 @@
 """
-Reporting package for Fortuna Prismatica.
+Reporting package for Deja View.
 
 This package provides narrative generation and reporting
 capabilities for explaining user activity.
 """
 
-from fortuna_prismatica.reporting.narrative import NarrativeGenerator
+from deja_view.reporting.narrative import NarrativeGenerator
 
 __all__ = ["NarrativeGenerator"]

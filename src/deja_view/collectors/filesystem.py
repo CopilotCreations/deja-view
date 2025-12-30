@@ -1,5 +1,5 @@
 """
-Filesystem activity collector for Fortuna Prismatica.
+Filesystem activity collector for Deja View.
 
 Monitors file create, modify, and delete events using watchdog.
 Provides real-time filesystem activity tracking.
@@ -22,9 +22,9 @@ from watchdog.events import (
 )
 from watchdog.observers import Observer
 
-from fortuna_prismatica.collectors.base import BaseCollector
-from fortuna_prismatica.config import get_config
-from fortuna_prismatica.models import Event, EventType
+from deja_view.collectors.base import BaseCollector
+from deja_view.config import get_config
+from deja_view.models import Event, EventType
 
 
 class FilesystemEventHandler(FileSystemEventHandler):

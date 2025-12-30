@@ -3,14 +3,14 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fortuna-prismatica"
+name = "deja-view"
 version = "0.1.0"
 description = "A privacy-first local daemon that continuously records, correlates, and explains your background digital activity"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "Fortuna Prismatica Team"}
+    {name = "Deja View Team"}
 ]
 keywords = [
     "productivity",
@@ -56,19 +56,19 @@ dev = [
 ]
 
 [project.scripts]
-fortuna = "fortuna_prismatica.cli:app"
+deja = "deja_view.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/user/fortuna-prismatica"
-Documentation = "https://github.com/user/fortuna-prismatica/tree/main/docs"
-Repository = "https://github.com/user/fortuna-prismatica"
-Issues = "https://github.com/user/fortuna-prismatica/issues"
+Homepage = "https://github.com/user/deja-view"
+Documentation = "https://github.com/user/deja-view/tree/main/docs"
+Repository = "https://github.com/user/deja-view"
+Issues = "https://github.com/user/deja-view/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-fortuna_prismatica = ["py.typed"]
+deja_view = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -76,7 +76,7 @@ asyncio_mode = "auto"
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
-source = ["src/fortuna_prismatica"]
+source = ["src/deja_view"]
 branch = true
 
 [tool.coverage.report]
@@ -108,7 +108,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["fortuna_prismatica"]
+known-first-party = ["deja_view"]
 
 [tool.mypy]
 python_version = "3.10"

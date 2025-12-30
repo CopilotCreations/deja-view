@@ -1,5 +1,5 @@
 """
-Process activity collector for Fortuna Prismatica.
+Process activity collector for Deja View.
 
 Monitors running processes to track application usage patterns.
 Samples active processes at regular intervals.
@@ -12,9 +12,9 @@ from typing import AsyncIterator, Dict, Optional, Set
 
 import psutil
 
-from fortuna_prismatica.collectors.base import BaseCollector
-from fortuna_prismatica.config import get_config
-from fortuna_prismatica.models import Event, EventType
+from deja_view.collectors.base import BaseCollector
+from deja_view.config import get_config
+from deja_view.models import Event, EventType
 
 
 class ProcessCollector(BaseCollector):

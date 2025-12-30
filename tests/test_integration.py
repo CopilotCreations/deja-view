@@ -1,5 +1,5 @@
 """
-Integration tests for Fortuna Prismatica.
+Integration tests for Deja View.
 
 These tests exercise multiple components together to ensure
 proper integration and boost coverage.
@@ -13,17 +13,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typer.testing import CliRunner
 
-from fortuna_prismatica.models import Event, EventType, ActivityWindow
-from fortuna_prismatica.storage.database import EventDatabase
-from fortuna_prismatica.analysis.graph import ActivityGraph
-from fortuna_prismatica.analysis.inference import InferenceEngine
-from fortuna_prismatica.reporting.narrative import NarrativeGenerator
-from fortuna_prismatica.collectors.browser import BrowserCollector
-from fortuna_prismatica.collectors.terminal import TerminalCollector
-from fortuna_prismatica.collectors.git import GitCollector
-from fortuna_prismatica.collectors.process import ProcessCollector
-from fortuna_prismatica.collectors.filesystem import FilesystemCollector
-from fortuna_prismatica.cli import app
+from deja_view.models import Event, EventType, ActivityWindow
+from deja_view.storage.database import EventDatabase
+from deja_view.analysis.graph import ActivityGraph
+from deja_view.analysis.inference import InferenceEngine
+from deja_view.reporting.narrative import NarrativeGenerator
+from deja_view.collectors.browser import BrowserCollector
+from deja_view.collectors.terminal import TerminalCollector
+from deja_view.collectors.git import GitCollector
+from deja_view.collectors.process import ProcessCollector
+from deja_view.collectors.filesystem import FilesystemCollector
+from deja_view.cli import app
 
 runner = CliRunner()
 
@@ -524,9 +524,9 @@ class TestConfigMoreCoverage:
     
     def test_config_from_env_watch_paths(self, temp_data_dir, monkeypatch):
         """Test config with custom watch paths from env."""
-        from fortuna_prismatica.config import Config
+        from deja_view.config import Config
         
-        monkeypatch.setenv("FORTUNA_WATCH_PATHS", f"{temp_data_dir},~")
+        monkeypatch.setenv("DEJA_WATCH_PATHS", f"{temp_data_dir},~")
         
         config = Config.from_env()
         
@@ -538,7 +538,7 @@ class TestNarrativeMoreCoverage:
     
     def test_trace_with_graph_matches(self, test_config, sample_events):
         """Test trace with graph node matches."""
-        from fortuna_prismatica.reporting.narrative import NarrativeGenerator
+        from deja_view.reporting.narrative import NarrativeGenerator
         
         db = EventDatabase(test_config.database_path)
         db.connect()
@@ -592,7 +592,7 @@ class TestDaemonMoreCoverage:
     @pytest.mark.asyncio
     async def test_daemon_signal_handlers(self, test_config):
         """Test daemon signal handler setup."""
-        from fortuna_prismatica.daemon import Daemon
+        from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
         await daemon.start()
@@ -605,7 +605,7 @@ class TestDaemonMoreCoverage:
     @pytest.mark.asyncio
     async def test_daemon_collector_count(self, test_config):
         """Test daemon collectors are initialized."""
-        from fortuna_prismatica.daemon import Daemon
+        from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
         
@@ -785,12 +785,12 @@ class TestConfigEnvVars:
     
     def test_config_from_env_with_custom_data_dir(self, temp_data_dir, monkeypatch):
         """Test config with custom data directory."""
-        from fortuna_prismatica.config import Config
+        from deja_view.config import Config
         
         custom_dir = temp_data_dir / "custom_data"
         custom_dir.mkdir()
         
-        monkeypatch.setenv("FORTUNA_DATA_DIR", str(custom_dir))
+        monkeypatch.setenv("DEJA_DATA_DIR", str(custom_dir))
         
         config = Config.from_env()
         
@@ -798,7 +798,7 @@ class TestConfigEnvVars:
     
     def test_config_default_values(self):
         """Test config default values."""
-        from fortuna_prismatica.config import Config
+        from deja_view.config import Config
         
         config = Config()
         
@@ -857,7 +857,7 @@ class TestDaemonLifecycle:
     @pytest.mark.asyncio
     async def test_daemon_restart(self, test_config):
         """Test daemon can be restarted."""
-        from fortuna_prismatica.daemon import Daemon
+        from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
         
@@ -1262,7 +1262,7 @@ class TestDaemonHandleEvent:
     @pytest.mark.asyncio
     async def test_daemon_handles_multiple_events(self, test_config):
         """Test daemon handles multiple events."""
-        from fortuna_prismatica.daemon import Daemon
+        from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
         await daemon.start()
@@ -1454,7 +1454,7 @@ class TestDaemonEventCount:
     @pytest.mark.asyncio
     async def test_event_count_increments(self, test_config):
         """Test event count increments with each event."""
-        from fortuna_prismatica.daemon import Daemon
+        from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
         await daemon.start()
@@ -1478,7 +1478,7 @@ class TestCollectorRegistry:
     
     def test_collectors_registry(self):
         """Test collectors are properly registered."""
-        from fortuna_prismatica.collectors import (
+        from deja_view.collectors import (
             FilesystemCollector,
             GitCollector,
             ProcessCollector,
@@ -1507,7 +1507,7 @@ class TestBaseCollectorMethods:
     
     def test_collector_is_running(self):
         """Test is_running property."""
-        from fortuna_prismatica.collectors.base import BaseCollector
+        from deja_view.collectors.base import BaseCollector
         
         class TestCollector(BaseCollector):
             async def start(self): pass
@@ -1655,7 +1655,7 @@ class TestFilesystemEventHandlerMore:
     def test_handler_ignores_pycache(self):
         """Test handler ignores __pycache__ directories."""
         from queue import Queue
-        from fortuna_prismatica.collectors.filesystem import FilesystemEventHandler
+        from deja_view.collectors.filesystem import FilesystemEventHandler
         
         queue = Queue()
         handler = FilesystemEventHandler(queue)

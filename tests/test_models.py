@@ -6,7 +6,7 @@ import pytest
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from fortuna_prismatica.models import Event, EventType, ActivityWindow
+from deja_view.models import Event, EventType, ActivityWindow
 
 
 class TestEvent:

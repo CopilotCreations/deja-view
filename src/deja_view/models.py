@@ -1,5 +1,5 @@
 """
-Unified Event Model for Fortuna Prismatica.
+Unified Event Model for Deja View.
 
 Defines the normalized event schema used across all collectors.
 All signals are converted to this unified format for storage and analysis.

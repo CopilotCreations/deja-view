@@ -1,5 +1,5 @@
 """
-DuckDB event storage for Fortuna Prismatica.
+DuckDB event storage for Deja View.
 
 Provides append-only, time-indexed storage for events using DuckDB.
 Supports efficient querying by time range, event type, and subject.
@@ -14,8 +14,8 @@ from uuid import UUID
 
 import duckdb
 
-from fortuna_prismatica.config import get_config
-from fortuna_prismatica.models import Event, EventType
+from deja_view.config import get_config
+from deja_view.models import Event, EventType
 
 
 class EventDatabase:
@@ -36,7 +36,7 @@ class EventDatabase:
         """
         config = get_config()
         self.database_path = database_path or config.database_path
-        self.logger = logging.getLogger("fortuna.storage.database")
+        self.logger = logging.getLogger("deja.storage.database")
         self._conn: Optional[duckdb.DuckDBPyConnection] = None
         
         # Ensure data directory exists

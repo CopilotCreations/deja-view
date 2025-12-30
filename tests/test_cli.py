@@ -6,7 +6,7 @@ import pytest
 from typer.testing import CliRunner
 from unittest.mock import patch, MagicMock
 
-from fortuna_prismatica.cli import app, _get_database, _get_graph
+from deja_view.cli import app, _get_database, _get_graph
 
 
 runner = CliRunner()
@@ -20,7 +20,7 @@ class TestCLI:
         result = runner.invoke(app, ["version"])
         
         assert result.exit_code == 0
-        assert "Fortuna Prismatica" in result.output
+        assert "Deja View" in result.output
     
     def test_status_command(self, test_config):
         """Test status command."""
@@ -187,8 +187,8 @@ class TestCLIFunctional:
     
     def test_start_already_running(self, test_config):
         """Test start when already running check works."""
-        with patch('fortuna_prismatica.cli.is_daemon_running', return_value=True):
-            with patch('fortuna_prismatica.cli.get_daemon_pid', return_value=12345):
+        with patch('deja_view.cli.is_daemon_running', return_value=True):
+            with patch('deja_view.cli.get_daemon_pid', return_value=12345):
                 result = runner.invoke(app, ["start"])
                 
                 assert result.exit_code == 1

@@ -1,5 +1,5 @@
 """
-Browser activity collector for Fortuna Prismatica.
+Browser activity collector for Deja View.
 
 Reads local browser history databases to capture browsing activity.
 Supports Chrome and Firefox history formats.
@@ -13,9 +13,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import AsyncIterator, Dict, List, Optional, Set
 
-from fortuna_prismatica.collectors.base import BaseCollector
-from fortuna_prismatica.config import get_config
-from fortuna_prismatica.models import Event, EventType
+from deja_view.collectors.base import BaseCollector
+from deja_view.config import get_config
+from deja_view.models import Event, EventType
 
 
 class BrowserCollector(BaseCollector):
@@ -75,7 +75,7 @@ class BrowserCollector(BaseCollector):
         """
         try:
             temp_dir = tempfile.gettempdir()
-            dest = Path(temp_dir) / f"fortuna_{source.name}"
+            dest = Path(temp_dir) / f"DEJA_{source.name}"
             shutil.copy2(source, dest)
             return dest
         except (IOError, OSError) as e:

@@ -1,5 +1,5 @@
 """
-Activity inference engine for Fortuna Prismatica.
+Activity inference engine for Deja View.
 
 Groups events into time windows and clusters them into
 inferred "tasks" with confidence scores.
@@ -10,8 +10,8 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set, Tuple
 
-from fortuna_prismatica.config import get_config
-from fortuna_prismatica.models import ActivityWindow, Event, EventType
+from deja_view.config import get_config
+from deja_view.models import ActivityWindow, Event, EventType
 
 
 class InferenceEngine:
@@ -77,7 +77,7 @@ class InferenceEngine:
         """
         config = get_config()
         self.window_minutes = window_minutes or config.activity_window_minutes
-        self.logger = logging.getLogger("fortuna.analysis.inference")
+        self.logger = logging.getLogger("deja.analysis.inference")
     
     def create_windows(
         self,

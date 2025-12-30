@@ -1,6 +1,6 @@
 # Suggestions for Future Improvements
 
-This document outlines potential enhancements and future directions for Fortuna Prismatica.
+This document outlines potential enhancements and future directions for Deja View.
 
 ## Short-Term Improvements
 
@@ -228,7 +228,7 @@ class WebhookManager:
 
 ```python
 # Plugin interface
-class FortunaPlugin(ABC):
+class DejaPlugin(ABC):
     name: str
     version: str
     
@@ -244,7 +244,7 @@ class FortunaPlugin(ABC):
 
 
 # Example custom collector plugin
-class JiraCollector(FortunaPlugin, BaseCollector):
+class JiraCollector(DejaPlugin, BaseCollector):
     """Track JIRA ticket activity."""
     
     def setup(self, context: PluginContext) -> None:

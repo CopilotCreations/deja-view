@@ -5,8 +5,8 @@ Tests for the storage module.
 import pytest
 from datetime import datetime, timedelta
 
-from fortuna_prismatica.models import Event, EventType
-from fortuna_prismatica.storage.database import EventDatabase
+from deja_view.models import Event, EventType
+from deja_view.storage.database import EventDatabase
 
 
 class TestEventDatabase:

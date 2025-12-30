@@ -5,9 +5,9 @@ Tests for the analysis modules.
 import pytest
 from datetime import datetime, timedelta
 
-from fortuna_prismatica.models import Event, EventType, ActivityWindow
-from fortuna_prismatica.analysis.inference import InferenceEngine
-from fortuna_prismatica.analysis.graph import ActivityGraph
+from deja_view.models import Event, EventType, ActivityWindow
+from deja_view.analysis.inference import InferenceEngine
+from deja_view.analysis.graph import ActivityGraph
 
 
 class TestInferenceEngine:

@@ -1,5 +1,5 @@
 """
-Configuration management for Fortuna Prismatica.
+Configuration management for Deja View.
 
 Provides centralized configuration with sensible defaults,
 environment variable overrides, and platform-specific paths.
@@ -17,11 +17,11 @@ def get_default_data_dir() -> Path:
     """Get the default data directory based on platform."""
     home = Path.home()
     if platform.system() == "Darwin":
-        return home / "Library" / "Application Support" / "fortuna"
+        return home / "Library" / "Application Support" / "deja.
     elif platform.system() == "Windows":
-        return Path(os.environ.get("APPDATA", home)) / "fortuna"
+        return Path(os.environ.get("APPDATA", home)) / "deja.
     else:
-        return home / ".fortuna"
+        return home / ".deja.
 
 
 def get_default_watch_paths() -> List[Path]:
@@ -128,7 +128,7 @@ class Config(BaseModel):
     def model_post_init(self, __context) -> None:
         """Initialize derived fields after model creation."""
         if self.pid_file is None:
-            self.pid_file = self.data_dir / "fortuna.pid"
+            self.pid_file = self.data_dir / "deja.pid"
     
     @property
     def database_path(self) -> Path:
@@ -143,7 +143,7 @@ class Config(BaseModel):
     @property
     def log_path(self) -> Path:
         """Path to the log file."""
-        return self.data_dir / "fortuna.log"
+        return self.data_dir / "deja.log"
     
     def ensure_data_dir(self) -> None:
         """Create the data directory if it doesn't exist."""
@@ -154,31 +154,31 @@ class Config(BaseModel):
         """Create configuration from environment variables."""
         kwargs = {}
         
-        if data_dir := os.environ.get("FORTUNA_DATA_DIR"):
+        if data_dir := os.environ.get("DEJA_DATA_DIR"):
             kwargs["data_dir"] = Path(data_dir).expanduser()
         
-        if log_level := os.environ.get("FORTUNA_LOG_LEVEL"):
+        if log_level := os.environ.get("DEJA_LOG_LEVEL"):
             kwargs["log_level"] = log_level
         
-        if interval := os.environ.get("FORTUNA_PROCESS_POLL_INTERVAL"):
+        if interval := os.environ.get("DEJA_PROCESS_POLL_INTERVAL"):
             kwargs["process_poll_interval"] = int(interval)
         
-        if interval := os.environ.get("FORTUNA_SHELL_HISTORY_POLL_INTERVAL"):
+        if interval := os.environ.get("DEJA_SHELL_HISTORY_POLL_INTERVAL"):
             kwargs["shell_history_poll_interval"] = int(interval)
         
-        if interval := os.environ.get("FORTUNA_BROWSER_POLL_INTERVAL"):
+        if interval := os.environ.get("DEJA_BROWSER_POLL_INTERVAL"):
             kwargs["browser_poll_interval"] = int(interval)
         
-        if window := os.environ.get("FORTUNA_ACTIVITY_WINDOW_MINUTES"):
+        if window := os.environ.get("DEJA_ACTIVITY_WINDOW_MINUTES"):
             kwargs["activity_window_minutes"] = int(window)
         
-        if paths := os.environ.get("FORTUNA_WATCH_PATHS"):
+        if paths := os.environ.get("DEJA_WATCH_PATHS"):
             kwargs["watch_paths"] = [Path(p.strip()).expanduser() for p in paths.split(",")]
         
-        if path := os.environ.get("FORTUNA_CHROME_HISTORY_PATH"):
+        if path := os.environ.get("DEJA_CHROME_HISTORY_PATH"):
             kwargs["chrome_history_path"] = Path(path).expanduser()
         
-        if path := os.environ.get("FORTUNA_FIREFOX_HISTORY_PATH"):
+        if path := os.environ.get("DEJA_FIREFOX_HISTORY_PATH"):
             kwargs["firefox_history_path"] = Path(path).expanduser()
         
         return cls(**kwargs)
