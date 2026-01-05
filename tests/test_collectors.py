@@ -22,7 +22,11 @@ class TestBaseCollector:
     """Tests for the BaseCollector class."""
     
     def test_collector_properties(self):
-        """Test collector properties."""
+        """Test that collector properties are correctly initialized.
+
+        Creates a TestCollector instance and verifies that the name property
+        returns the expected value and is_running is False initially.
+        """
         class TestCollector(BaseCollector):
             async def start(self): pass
             async def stop(self): pass
@@ -39,7 +43,11 @@ class TestBaseCollector:
         assert not collector.is_running
     
     def test_event_callback(self):
-        """Test event callback mechanism."""
+        """Test that event callback mechanism properly receives events.
+
+        Creates a collector with an event callback, emits an event, and
+        verifies the callback receives the correct event.
+        """
         class TestCollector(BaseCollector):
             async def start(self): pass
             async def stop(self): pass
@@ -67,7 +75,11 @@ class TestFilesystemEventHandler:
     """Tests for the FilesystemEventHandler."""
     
     def test_ignore_patterns(self):
-        """Test that certain patterns are ignored."""
+        """Test that certain file patterns are correctly ignored.
+
+        Verifies that .git, __pycache__, and .swp files are ignored
+        while regular Python files are not.
+        """
         from queue import Queue
         handler = FilesystemEventHandler(Queue())
         
@@ -77,7 +89,11 @@ class TestFilesystemEventHandler:
         assert not handler._should_ignore("/path/to/code.py")
     
     def test_event_queueing(self):
-        """Test that events are properly queued."""
+        """Test that filesystem events are properly queued.
+
+        Creates a file creation event and verifies it is correctly
+        queued with the expected action and path.
+        """
         from queue import Queue
         from watchdog.events import FileCreatedEvent
         
@@ -97,7 +113,14 @@ class TestFilesystemCollector:
     """Tests for the FilesystemCollector."""
     
     def test_find_repository(self, temp_data_dir):
-        """Test repository detection."""
+        """Test that git repositories are correctly detected.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Creates a fake git repo and verifies that files in the repo root
+        and subdirectories are correctly identified as belonging to the repo.
+        """
         # Create a fake git repo
         git_dir = temp_data_dir / ".git"
         git_dir.mkdir()
@@ -115,7 +138,13 @@ class TestFilesystemCollector:
         assert repo == str(temp_data_dir)
     
     def test_create_event(self, temp_data_dir):
-        """Test event creation from filesystem data."""
+        """Test that filesystem events are correctly created.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Verifies that created events have the correct type, source, and subject.
+        """
         collector = FilesystemCollector(watch_paths=[temp_data_dir])
         
         event = collector._create_event(
@@ -132,7 +161,14 @@ class TestGitCollector:
     """Tests for the GitCollector."""
     
     def test_repo_state_parsing(self, temp_data_dir):
-        """Test repository state parsing."""
+        """Test that repository state is correctly parsed.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Creates a minimal git repo and verifies the state contains
+        path and branch information.
+        """
         collector = GitCollector(watch_paths=[temp_data_dir])
         
         # Create a minimal git repo
@@ -147,7 +183,11 @@ class TestGitCollector:
         assert "branch" in state
     
     def test_commit_event_creation(self):
-        """Test commit event creation."""
+        """Test that git commit events are correctly created.
+
+        Verifies that created commit events have the correct type,
+        repository, branch, and metadata.
+        """
         collector = GitCollector()
         
         commit = {
@@ -169,7 +209,11 @@ class TestProcessCollector:
     """Tests for the ProcessCollector."""
     
     def test_process_categorization(self):
-        """Test process categorization."""
+        """Test that processes are correctly categorized.
+
+        Verifies that known applications are categorized as editor, browser,
+        or communication, while unknown apps return None.
+        """
         collector = ProcessCollector()
         
         assert collector._categorize_process("code") == "editor"
@@ -178,7 +222,11 @@ class TestProcessCollector:
         assert collector._categorize_process("unknown_app") is None
     
     def test_should_track(self):
-        """Test process tracking decisions."""
+        """Test that process tracking decisions are correct.
+
+        Verifies that known category processes are tracked, system processes
+        are not tracked, and high resource usage processes are tracked.
+        """
         collector = ProcessCollector()
         
         # Known category should be tracked
@@ -195,7 +243,11 @@ class TestTerminalCollector:
     """Tests for the TerminalCollector."""
     
     def test_should_ignore_commands(self):
-        """Test command filtering."""
+        """Test that trivial commands are correctly filtered out.
+
+        Verifies that simple commands like 'ls' and 'cd' are ignored
+        while meaningful commands like 'git commit' are not.
+        """
         collector = TerminalCollector()
         
         assert collector._should_ignore("ls")
@@ -204,7 +256,11 @@ class TestTerminalCollector:
         assert not collector._should_ignore("python script.py")
     
     def test_parse_bash_history(self):
-        """Test bash history parsing."""
+        """Test that bash history with extended format is correctly parsed.
+
+        Verifies that commands with timestamps are parsed correctly and
+        the shell type is set to 'bash'.
+        """
         collector = TerminalCollector()
         
         # Extended history format
@@ -216,7 +272,11 @@ class TestTerminalCollector:
         assert commands[0]["shell"] == "bash"
     
     def test_parse_zsh_history(self):
-        """Test zsh history parsing."""
+        """Test that zsh history with extended format is correctly parsed.
+
+        Verifies that commands with timestamps are parsed correctly and
+        the shell type is set to 'zsh'.
+        """
         collector = TerminalCollector()
         
         # Extended history format
@@ -232,7 +292,11 @@ class TestBrowserCollector:
     """Tests for the BrowserCollector."""
     
     def test_url_filtering(self):
-        """Test URL filtering."""
+        """Test that internal browser URLs are correctly filtered.
+
+        Verifies that chrome://, about:, and file:// URLs are ignored
+        while https:// URLs are not.
+        """
         collector = BrowserCollector()
         
         assert collector._should_ignore_url("chrome://settings")
@@ -241,7 +305,11 @@ class TestBrowserCollector:
         assert not collector._should_ignore_url("https://example.com")
     
     def test_visit_event_creation(self):
-        """Test browser visit event creation."""
+        """Test that browser visit events are correctly created.
+
+        Verifies that created visit events have the correct type, URL,
+        title, browser, and domain metadata.
+        """
         collector = BrowserCollector()
         
         visit = {
@@ -260,7 +328,11 @@ class TestBrowserCollector:
         assert event.metadata["domain"] == "docs.python.org"
     
     def test_additional_ignore_patterns(self):
-        """Test additional URL ignore patterns."""
+        """Test that browser extension and internal URLs are ignored.
+
+        Verifies that moz-extension://, edge://, brave://, data:, and
+        chrome-extension:// URLs are all correctly filtered out.
+        """
         collector = BrowserCollector()
         
         assert collector._should_ignore_url("moz-extension://abc123")
@@ -274,7 +346,11 @@ class TestFilesystemEventHandlerExtended:
     """Extended tests for FilesystemEventHandler."""
     
     def test_on_modified(self):
-        """Test file modification events."""
+        """Test that file modification events are correctly handled.
+
+        Creates a FileModifiedEvent and verifies it is queued with
+        the 'modify' action and correct path.
+        """
         from watchdog.events import FileModifiedEvent
         
         queue = Queue()
@@ -288,7 +364,11 @@ class TestFilesystemEventHandlerExtended:
         assert path == "/path/to/file.py"
     
     def test_on_deleted(self):
-        """Test file deletion events."""
+        """Test that file deletion events are correctly handled.
+
+        Creates a FileDeletedEvent and verifies it is queued with
+        the 'delete' action.
+        """
         from watchdog.events import FileDeletedEvent
         
         queue = Queue()
@@ -301,7 +381,11 @@ class TestFilesystemEventHandlerExtended:
         assert action == "delete"
     
     def test_on_moved(self):
-        """Test file move events."""
+        """Test that file move events are correctly handled.
+
+        Creates a FileMovedEvent and verifies it is queued with
+        the 'move' action and both source and destination paths.
+        """
         from watchdog.events import FileMovedEvent
         
         queue = Queue()
@@ -316,7 +400,11 @@ class TestFilesystemEventHandlerExtended:
         assert dest == "/new/path.py"
     
     def test_ignore_node_modules(self):
-        """Test that node_modules are ignored."""
+        """Test that node_modules and cache directories are ignored.
+
+        Verifies that files in node_modules, .mypy_cache, and
+        .pytest_cache directories are correctly filtered out.
+        """
         queue = Queue()
         handler = FilesystemEventHandler(queue)
         
@@ -330,7 +418,12 @@ class TestBaseCollectorExtended:
     
     @pytest.mark.asyncio
     async def test_collector_run_and_stop(self):
-        """Test running and stopping a collector."""
+        """Test that collectors can be started and stopped correctly.
+
+        Creates a SimpleCollector that yields events, starts it as a task,
+        allows it to collect events, then stops it and verifies the
+        started and stopped flags are set.
+        """
         events_collected = []
         
         class SimpleCollector(BaseCollector):
@@ -372,7 +465,11 @@ class TestBaseCollectorExtended:
         assert collector.stopped
     
     def test_emit_without_callback(self):
-        """Test emitting event without callback logs warning."""
+        """Test that emitting event without callback does not crash.
+
+        Creates a collector without setting a callback and verifies
+        that emitting an event does not raise an exception.
+        """
         class SimpleCollector(BaseCollector):
             async def start(self): pass
             async def stop(self): pass
@@ -395,7 +492,11 @@ class TestGitCollectorExtended:
     """Extended tests for GitCollector."""
     
     def test_branch_event_creation(self):
-        """Test branch switch event creation."""
+        """Test that branch switch events are correctly created.
+
+        Verifies that created branch switch events have the correct type,
+        subject (new branch), subject_secondary (old branch), and repository.
+        """
         collector = GitCollector()
         
         event = collector._create_branch_event("/path/repo", "main", "feature")
@@ -406,7 +507,14 @@ class TestGitCollectorExtended:
         assert event.repository == "/path/repo"
     
     def test_find_repositories_empty(self, temp_data_dir):
-        """Test finding repos in empty directory."""
+        """Test finding repositories in an empty directory.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Verifies that _find_repositories returns an empty list for a
+        directory with no git repositories.
+        """
         collector = GitCollector(watch_paths=[temp_data_dir])
         repos = collector._find_repositories()
         
@@ -417,7 +525,11 @@ class TestProcessCollectorExtended:
     """Extended tests for ProcessCollector."""
     
     def test_create_process_event(self):
-        """Test process event creation."""
+        """Test that process events are correctly created.
+
+        Verifies that created process events have the correct type,
+        process name, and process ID.
+        """
         collector = ProcessCollector()
         
         proc_info = {
@@ -436,7 +548,11 @@ class TestProcessCollectorExtended:
         assert event.process_id == 12345
     
     def test_categorize_various_processes(self):
-        """Test categorization of various process types."""
+        """Test categorization of various process types.
+
+        Verifies that browsers, terminals, communication apps, and
+        development tools are all correctly categorized.
+        """
         collector = ProcessCollector()
         
         assert collector._categorize_process("firefox") == "browser"
@@ -453,7 +569,11 @@ class TestTerminalCollectorExtended:
     """Extended tests for TerminalCollector."""
     
     def test_parse_simple_bash_history(self):
-        """Test simple bash history format."""
+        """Test parsing simple bash history without timestamps.
+
+        Verifies that commands in a simple format (one per line) are
+        correctly parsed.
+        """
         collector = TerminalCollector()
         
         content = "git status\npython script.py\n"
@@ -463,7 +583,11 @@ class TestTerminalCollectorExtended:
         assert len(commands) >= 2
     
     def test_create_command_event(self):
-        """Test command event creation."""
+        """Test that terminal command events are correctly created.
+
+        Verifies that created command events have the correct type,
+        subject containing the command, and shell metadata.
+        """
         collector = TerminalCollector()
         
         cmd_info = {
@@ -479,7 +603,11 @@ class TestTerminalCollectorExtended:
         assert event.metadata["shell"] == "bash"
     
     def test_ignore_common_commands(self):
-        """Test that common navigation commands are ignored."""
+        """Test that common navigation commands are ignored.
+
+        Verifies that ls, pwd, clear, history, and exit are ignored
+        while 'make build' is not.
+        """
         collector = TerminalCollector()
         
         assert collector._should_ignore("ls -la")
@@ -490,7 +618,11 @@ class TestTerminalCollectorExtended:
         assert not collector._should_ignore("make build")
     
     def test_parse_bash_with_invalid_timestamp(self):
-        """Test bash history with invalid timestamp."""
+        """Test parsing bash history with an invalid timestamp.
+
+        Verifies that commands are still parsed even when the timestamp
+        format is invalid.
+        """
         collector = TerminalCollector()
         
         # Invalid timestamp format
@@ -501,7 +633,11 @@ class TestTerminalCollectorExtended:
         assert len(commands) >= 1
     
     def test_parse_zsh_simple_format(self):
-        """Test zsh simple history format."""
+        """Test parsing zsh history in simple format without timestamps.
+
+        Verifies that commands in a simple format (one per line) are
+        correctly parsed.
+        """
         collector = TerminalCollector()
         
         content = "git status\nmake build\n"
@@ -510,7 +646,11 @@ class TestTerminalCollectorExtended:
         assert len(commands) >= 2
     
     def test_command_with_file_paths(self):
-        """Test command with file path references."""
+        """Test that commands with file paths extract referenced files.
+
+        Verifies that file paths in commands are extracted and stored
+        in the referenced_files metadata.
+        """
         collector = TerminalCollector()
         
         cmd_info = {
@@ -528,7 +668,11 @@ class TestBrowserCollectorExtended:
     """Extended tests for BrowserCollector."""
     
     def test_extract_domain(self):
-        """Test domain extraction from URLs."""
+        """Test that domains are correctly extracted from URLs.
+
+        Verifies that the domain is extracted correctly including
+        subdomains.
+        """
         collector = BrowserCollector()
         
         # Use the internal method through event creation
@@ -543,7 +687,14 @@ class TestBrowserCollectorExtended:
         assert event.metadata["domain"] == "subdomain.example.com"
     
     def test_copy_database_nonexistent(self, temp_data_dir):
-        """Test copying nonexistent database."""
+        """Test that copying a nonexistent database returns None.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Verifies that _copy_database returns None when the source
+        database does not exist.
+        """
         collector = BrowserCollector()
         
         result = collector._copy_database(temp_data_dir / "nonexistent.db")
@@ -551,7 +702,14 @@ class TestBrowserCollectorExtended:
     
     @pytest.mark.asyncio
     async def test_browser_start_no_browsers(self, temp_data_dir):
-        """Test browser collector start with no browsers."""
+        """Test that browser collector handles no browsers gracefully.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Verifies that the collector can start and stop when no browser
+        paths are configured.
+        """
         collector = BrowserCollector()
         collector.chrome_path = None
         collector.firefox_path = None
@@ -564,7 +722,13 @@ class TestGitCollectorMore:
     """More tests for GitCollector."""
     
     def test_get_repo_state(self, temp_data_dir):
-        """Test getting repository state."""
+        """Test that repository state is correctly retrieved.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Creates a minimal git repo and verifies the state path matches.
+        """
         collector = GitCollector(watch_paths=[temp_data_dir])
         
         # Create a minimal git repo
@@ -577,7 +741,14 @@ class TestGitCollectorMore:
         assert state["path"] == str(temp_data_dir)
     
     def test_get_recent_commits_no_git(self, temp_data_dir):
-        """Test getting commits without git."""
+        """Test that getting commits without git returns empty list.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Verifies that _get_recent_commits returns an empty list for a
+        directory without git.
+        """
         collector = GitCollector(watch_paths=[temp_data_dir])
         
         commits = collector._get_recent_commits(temp_data_dir)
@@ -585,7 +756,13 @@ class TestGitCollectorMore:
     
     @pytest.mark.asyncio
     async def test_git_start_stop(self, temp_data_dir):
-        """Test git collector start and stop."""
+        """Test that git collector can start and stop correctly.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Verifies that _known_repos is populated on start and cleared on stop.
+        """
         collector = GitCollector(watch_paths=[temp_data_dir])
         
         await collector.start()
@@ -599,7 +776,14 @@ class TestFilesystemCollectorMore:
     """More tests for FilesystemCollector."""
     
     def test_create_move_event(self, temp_data_dir):
-        """Test creating a move event."""
+        """Test that file move events are correctly created.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Verifies that move events have subject_secondary set and the
+        description mentions 'moved'.
+        """
         collector = FilesystemCollector(watch_paths=[temp_data_dir])
         
         event = collector._create_event(
@@ -614,7 +798,13 @@ class TestFilesystemCollectorMore:
     
     @pytest.mark.asyncio
     async def test_filesystem_start_stop(self, temp_data_dir):
-        """Test filesystem collector start and stop."""
+        """Test that filesystem collector can start and stop correctly.
+
+        Args:
+            temp_data_dir: Pytest fixture providing a temporary directory.
+
+        Verifies that _observer is set on start and cleared on stop.
+        """
         collector = FilesystemCollector(watch_paths=[temp_data_dir])
         
         await collector.start()
@@ -628,7 +818,11 @@ class TestProcessCollectorMore:
     """More tests for ProcessCollector."""
     
     def test_should_track_high_cpu(self):
-        """Test tracking high CPU processes."""
+        """Test that high CPU processes are tracked.
+
+        Verifies that an unknown process with high CPU usage is
+        tracked even without a known category.
+        """
         collector = ProcessCollector()
         
         proc_info = {
@@ -640,7 +834,11 @@ class TestProcessCollectorMore:
         assert collector._should_track(proc_info)
     
     def test_should_track_high_memory(self):
-        """Test tracking high memory processes."""
+        """Test that high memory processes are tracked.
+
+        Verifies that an unknown process with high memory usage is
+        tracked even without a known category.
+        """
         collector = ProcessCollector()
         
         proc_info = {
@@ -652,7 +850,11 @@ class TestProcessCollectorMore:
         assert collector._should_track(proc_info)
     
     def test_should_not_track_idle(self):
-        """Test not tracking idle unknown processes."""
+        """Test that idle unknown processes are not tracked.
+
+        Verifies that an unknown process with zero CPU and memory
+        usage is not tracked.
+        """
         collector = ProcessCollector()
         
         proc_info = {
@@ -665,7 +867,10 @@ class TestProcessCollectorMore:
     
     @pytest.mark.asyncio
     async def test_process_start_stop(self):
-        """Test process collector start and stop."""
+        """Test that process collector can start and stop correctly.
+
+        Verifies that _active_processes is cleared after stop.
+        """
         collector = ProcessCollector(poll_interval=5)
         
         await collector.start()

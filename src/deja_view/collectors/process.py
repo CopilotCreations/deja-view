@@ -143,7 +143,15 @@ class ProcessCollector(BaseCollector):
         event_type: EventType,
         proc_info: Dict
     ) -> Event:
-        """Create an event for process activity."""
+        """Create an event for process activity.
+
+        Args:
+            event_type: The type of process event (start, active, end).
+            proc_info: Dictionary containing process information.
+
+        Returns:
+            An Event object representing the process activity.
+        """
         category = self._categorize_process(proc_info["name"])
         
         return Event(
@@ -163,7 +171,11 @@ class ProcessCollector(BaseCollector):
         )
     
     async def start(self) -> None:
-        """Initialize process collector state."""
+        """Initialize process collector state.
+
+        Performs an initial CPU percent reading for all processes since
+        the first call to cpu_percent() always returns 0.
+        """
         # Initial CPU percent reading (first call always returns 0)
         for proc in psutil.process_iter():
             try:
@@ -175,16 +187,22 @@ class ProcessCollector(BaseCollector):
         self.logger.info("Process collector initialized")
     
     async def stop(self) -> None:
-        """Clean up process collector."""
+        """Clean up process collector.
+
+        Clears all tracked process state including active processes
+        and seen PIDs.
+        """
         self._active_processes.clear()
         self._seen_pids.clear()
     
     async def collect(self) -> AsyncIterator[Event]:
-        """
-        Yield process events at regular intervals.
-        
-        Samples running processes and yields events for
-        notable process activity.
+        """Yield process events at regular intervals.
+
+        Samples running processes and yields events for notable process
+        activity including process starts, active usage, and terminations.
+
+        Yields:
+            Event objects for each notable process activity detected.
         """
         while self._running:
             try:

@@ -57,21 +57,30 @@ class BrowserCollector(BaseCollector):
         self._seen_visits: Set[str] = set()
     
     def _should_ignore_url(self, url: str) -> bool:
-        """Check if a URL should be ignored."""
+        """Check if a URL should be ignored based on configured patterns.
+
+        Args:
+            url: The URL to check.
+
+        Returns:
+            True if the URL matches any ignore pattern, False otherwise.
+        """
         for pattern in self.IGNORE_URL_PATTERNS:
             if url.startswith(pattern):
                 return True
         return False
     
     def _copy_database(self, source: Path) -> Optional[Path]:
-        """
-        Copy a database file to temp location to avoid locking.
-        
+        """Copy a database file to temp location to avoid locking.
+
+        Browser databases are often locked by the browser process.
+        This method copies the database to a temporary location for safe reading.
+
         Args:
-            source: Source database path
-            
+            source: Source database path.
+
         Returns:
-            Path to copied database or None if failed
+            Path to copied database or None if copy failed.
         """
         try:
             temp_dir = tempfile.gettempdir()
@@ -83,16 +92,18 @@ class BrowserCollector(BaseCollector):
             return None
     
     def _read_chrome_history(self, since_visit_time: Optional[int] = None) -> List[Dict]:
-        """
-        Read Chrome history database.
-        
-        Chrome stores timestamps as microseconds since 1601-01-01.
-        
+        """Read Chrome history database.
+
+        Chrome stores timestamps as microseconds since 1601-01-01 (Windows FILETIME).
+        This method copies the database to avoid locking issues with the browser.
+
         Args:
             since_visit_time: Only get visits after this Chrome timestamp
-            
+                (microseconds since 1601-01-01). Defaults to 1 hour ago.
+
         Returns:
-            List of visit dictionaries
+            List of visit dictionaries containing url, title, timestamp,
+            browser name, and visit_time.
         """
         if not self.chrome_path or not self.chrome_path.exists():
             return []
@@ -161,16 +172,18 @@ class BrowserCollector(BaseCollector):
         return visits
     
     def _read_firefox_history(self, since_visit_time: Optional[int] = None) -> List[Dict]:
-        """
-        Read Firefox history database.
-        
+        """Read Firefox history database.
+
         Firefox stores timestamps as microseconds since Unix epoch.
-        
+        This method copies the database to avoid locking issues with the browser.
+
         Args:
-            since_visit_time: Only get visits after this timestamp (microseconds)
-            
+            since_visit_time: Only get visits after this timestamp
+                (microseconds since Unix epoch). Defaults to 1 hour ago.
+
         Returns:
-            List of visit dictionaries
+            List of visit dictionaries containing url, title, timestamp,
+            browser name, and visit_time.
         """
         if not self.firefox_path or not self.firefox_path.exists():
             return []
@@ -235,7 +248,15 @@ class BrowserCollector(BaseCollector):
         return visits
     
     def _create_visit_event(self, visit: Dict) -> Event:
-        """Create an event for a browser visit."""
+        """Create an Event object for a browser visit.
+
+        Args:
+            visit: Dictionary containing visit data with keys: url, title,
+                timestamp, browser, and visit_time.
+
+        Returns:
+            An Event object representing the browser visit.
+        """
         # Extract domain from URL
         url = visit["url"]
         domain = ""
@@ -260,7 +281,11 @@ class BrowserCollector(BaseCollector):
         )
     
     async def start(self) -> None:
-        """Initialize browser collector state."""
+        """Initialize browser collector state.
+
+        Sets initial visit times to the current time to only capture new visits.
+        Logs which browsers are available for monitoring.
+        """
         # Set initial visit times to now to only capture new visits
         now_micro = int(datetime.now().timestamp() * 1000000)
         chrome_now = now_micro + 11644473600000000  # Chrome epoch offset
@@ -280,15 +305,21 @@ class BrowserCollector(BaseCollector):
             self.logger.warning("No browser history databases found")
     
     async def stop(self) -> None:
-        """Clean up browser collector."""
+        """Clean up browser collector resources.
+
+        Clears the seen visits cache to free memory.
+        """
         self._seen_visits.clear()
     
     async def collect(self) -> AsyncIterator[Event]:
-        """
-        Yield browser visit events.
-        
-        Periodically reads browser history databases and yields
-        events for new page visits.
+        """Yield browser visit events.
+
+        Periodically reads Chrome and Firefox browser history databases
+        and yields events for new page visits. Maintains a cache of seen
+        visits to avoid duplicates.
+
+        Yields:
+            Event objects for each new browser page visit.
         """
         while self._running:
             try:

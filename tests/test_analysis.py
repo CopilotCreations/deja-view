@@ -15,16 +15,28 @@ class TestInferenceEngine:
     
     @pytest.fixture
     def engine(self):
-        """Create an inference engine."""
+        """Create an inference engine for testing.
+
+        Returns:
+            InferenceEngine: A configured inference engine with 15-minute windows.
+        """
         return InferenceEngine(window_minutes=15)
     
     def test_create_windows_empty(self, engine):
-        """Test window creation with no events."""
+        """Test window creation with no events.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         windows = engine.create_windows([])
         assert len(windows) == 0
     
     def test_create_windows_single_event(self, engine):
-        """Test window creation with a single event."""
+        """Test window creation with a single event.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -37,7 +49,11 @@ class TestInferenceEngine:
         assert len(windows[0].events) == 1
     
     def test_create_windows_groups_nearby_events(self, engine):
-        """Test that nearby events are grouped together."""
+        """Test that nearby events are grouped together.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         now = datetime.now()
         events = [
             Event(
@@ -60,7 +76,11 @@ class TestInferenceEngine:
         assert len(windows[0].events) == 2
     
     def test_create_windows_separates_distant_events(self, engine):
-        """Test that distant events create separate windows."""
+        """Test that distant events create separate windows.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         now = datetime.now()
         events = [
             Event(
@@ -82,7 +102,11 @@ class TestInferenceEngine:
         assert len(windows) == 2
     
     def test_infer_task_coding(self, engine):
-        """Test task inference for coding activity."""
+        """Test task inference for coding activity.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         now = datetime.now()
         window = ActivityWindow(
             start_time=now - timedelta(minutes=10),
@@ -109,7 +133,11 @@ class TestInferenceEngine:
         assert confidence > 0.5
     
     def test_infer_task_research(self, engine):
-        """Test task inference for research activity."""
+        """Test task inference for research activity.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         now = datetime.now()
         window = ActivityWindow(
             start_time=now - timedelta(minutes=10),
@@ -141,7 +169,12 @@ class TestInferenceEngine:
         assert task_label == "research"
     
     def test_analyze_windows(self, engine, sample_events):
-        """Test window analysis."""
+        """Test window analysis.
+
+        Args:
+            engine: The inference engine fixture.
+            sample_events: Sample events fixture from conftest.
+        """
         windows = engine.create_windows(sample_events)
         analyzed = engine.analyze_windows(windows)
         
@@ -151,7 +184,11 @@ class TestInferenceEngine:
             assert isinstance(window.key_subjects, list)
     
     def test_detect_context_switches(self, engine):
-        """Test context switch detection."""
+        """Test context switch detection.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         now = datetime.now()
         
         windows = [
@@ -178,7 +215,12 @@ class TestInferenceEngine:
         assert "research" in switches[0][2]
     
     def test_get_activity_summary(self, engine, sample_events):
-        """Test activity summary generation."""
+        """Test activity summary generation.
+
+        Args:
+            engine: The inference engine fixture.
+            sample_events: Sample events fixture from conftest.
+        """
         windows = engine.create_windows(sample_events)
         windows = engine.analyze_windows(windows)
         
@@ -194,17 +236,32 @@ class TestActivityGraph:
     
     @pytest.fixture
     def graph(self, temp_data_dir):
-        """Create a test activity graph."""
+        """Create a test activity graph.
+
+        Args:
+            temp_data_dir: Temporary directory fixture from conftest.
+
+        Returns:
+            ActivityGraph: A configured activity graph for testing.
+        """
         return ActivityGraph(temp_data_dir / "test_graph.gpickle")
     
     def test_empty_graph(self, graph):
-        """Test empty graph initialization."""
+        """Test empty graph initialization.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         stats = graph.get_statistics()
         assert stats["nodes"] == 0
         assert stats["edges"] == 0
     
     def test_add_file_event(self, graph):
-        """Test adding a file event."""
+        """Test adding a file event.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -217,7 +274,11 @@ class TestActivityGraph:
         assert stats["nodes"] == 1
     
     def test_add_browser_event(self, graph):
-        """Test adding a browser event creates domain node."""
+        """Test adding a browser event creates domain node.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         event = Event(
             event_type=EventType.BROWSER_VISIT,
             source="test",
@@ -231,7 +292,11 @@ class TestActivityGraph:
         assert stats["nodes"] == 2  # URL and domain
     
     def test_add_window_creates_edges(self, graph):
-        """Test that adding a window creates edges between nodes."""
+        """Test that adding a window creates edges between nodes.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         now = datetime.now()
         window = ActivityWindow(
             start_time=now - timedelta(minutes=10),
@@ -259,7 +324,11 @@ class TestActivityGraph:
         assert stats["edges"] >= 1
     
     def test_find_node(self, graph):
-        """Test finding nodes by query."""
+        """Test finding nodes by query.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -273,7 +342,11 @@ class TestActivityGraph:
         assert "important_file" in matches[0]
     
     def test_get_related_nodes(self, graph):
-        """Test getting related nodes."""
+        """Test getting related nodes.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         now = datetime.now()
         
         # Add events that should be related
@@ -305,7 +378,11 @@ class TestActivityGraph:
             assert len(related) > 0
     
     def test_get_most_connected(self, graph):
-        """Test getting most connected nodes."""
+        """Test getting most connected nodes.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         now = datetime.now()
         
         # Add multiple events
@@ -322,7 +399,11 @@ class TestActivityGraph:
         assert len(top) >= 1
     
     def test_save_and_load(self, graph):
-        """Test graph persistence."""
+        """Test graph persistence.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -341,7 +422,11 @@ class TestActivityGraph:
         assert new_graph.get_statistics()["nodes"] == 1
     
     def test_clear(self, graph):
-        """Test clearing the graph."""
+        """Test clearing the graph.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -354,7 +439,11 @@ class TestActivityGraph:
         assert graph.get_statistics()["nodes"] == 0
     
     def test_get_node_info(self, graph):
-        """Test getting node information."""
+        """Test getting node information.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -370,18 +459,30 @@ class TestActivityGraph:
             assert "id" in info
     
     def test_get_node_info_nonexistent(self, graph):
-        """Test getting info for nonexistent node."""
+        """Test getting info for nonexistent node.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         info = graph.get_node_info("nonexistent:node")
         assert info is None
     
     def test_load_nonexistent_graph(self, temp_data_dir):
-        """Test loading graph from nonexistent file."""
+        """Test loading graph from nonexistent file.
+
+        Args:
+            temp_data_dir: Temporary directory fixture from conftest.
+        """
         graph = ActivityGraph(temp_data_dir / "nonexistent.gpickle")
         loaded = graph.load()
         assert not loaded
     
     def test_get_clusters(self, graph):
-        """Test getting connected components."""
+        """Test getting connected components.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         # Add disconnected nodes
         event1 = Event(
             event_type=EventType.FILE_CREATE,
@@ -400,7 +501,11 @@ class TestActivityGraph:
         assert len(clusters) >= 1
     
     def test_add_shell_command_event(self, graph):
-        """Test adding shell command event."""
+        """Test adding shell command event.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         event = Event(
             event_type=EventType.SHELL_COMMAND,
             source="test",
@@ -412,7 +517,11 @@ class TestActivityGraph:
         assert len(nodes) >= 1
     
     def test_add_process_event(self, graph):
-        """Test adding process event."""
+        """Test adding process event.
+
+        Args:
+            graph: The activity graph fixture.
+        """
         event = Event(
             event_type=EventType.PROCESS_START,
             source="test",
@@ -430,11 +539,19 @@ class TestInferenceEngineExtended:
     
     @pytest.fixture
     def engine(self):
-        """Create an inference engine."""
+        """Create an inference engine for testing.
+
+        Returns:
+            InferenceEngine: A configured inference engine with 15-minute windows.
+        """
         return InferenceEngine(window_minutes=15)
     
     def test_find_stalled_tasks_no_stalls(self, engine):
-        """Test stall detection with no stalls."""
+        """Test stall detection with no stalls.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         now = datetime.now()
         windows = [
             ActivityWindow(
@@ -456,7 +573,11 @@ class TestInferenceEngineExtended:
         assert isinstance(stalls, list)
     
     def test_infer_terminal_work(self, engine):
-        """Test inference for terminal work."""
+        """Test inference for terminal work.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         now = datetime.now()
         window = ActivityWindow(
             start_time=now - timedelta(minutes=10),
@@ -473,7 +594,11 @@ class TestInferenceEngineExtended:
         assert task in ["terminal_work", "general_activity"]
     
     def test_context_switches_no_switches(self, engine):
-        """Test context switch detection with consistent work."""
+        """Test context switch detection with consistent work.
+
+        Args:
+            engine: The inference engine fixture.
+        """
         now = datetime.now()
         windows = [
             ActivityWindow(

@@ -43,20 +43,31 @@ class EventDatabase:
         self.database_path.parent.mkdir(parents=True, exist_ok=True)
     
     def connect(self) -> None:
-        """Connect to the database and initialize schema."""
+        """Connect to the database and initialize schema.
+        
+        Establishes a connection to the DuckDB database and creates
+        the events table and indexes if they don't exist.
+        """
         self._conn = duckdb.connect(str(self.database_path))
         self._initialize_schema()
         self.logger.info(f"Connected to database: {self.database_path}")
     
     def close(self) -> None:
-        """Close the database connection."""
+        """Close the database connection.
+        
+        Safely closes the DuckDB connection if one is open.
+        """
         if self._conn:
             self._conn.close()
             self._conn = None
             self.logger.info("Database connection closed")
     
     def _initialize_schema(self) -> None:
-        """Create the events table if it doesn't exist."""
+        """Create the events table if it doesn't exist.
+        
+        Creates the events table with all required columns and sets up
+        indexes for timestamp, event_type, source, and subject columns.
+        """
         self._conn.execute("""
             CREATE TABLE IF NOT EXISTS events (
                 id VARCHAR PRIMARY KEY,
@@ -97,11 +108,13 @@ class EventDatabase:
         """)
     
     def insert_event(self, event: Event) -> None:
-        """
-        Insert a single event into the database.
+        """Insert a single event into the database.
         
         Args:
-            event: Event to insert
+            event: The Event object to insert into the events table.
+        
+        Raises:
+            duckdb.Error: If the insert operation fails.
         """
         self._conn.execute("""
             INSERT INTO events (
@@ -129,14 +142,15 @@ class EventDatabase:
         ])
     
     def insert_events(self, events: List[Event]) -> int:
-        """
-        Insert multiple events into the database.
+        """Insert multiple events into the database.
         
         Args:
-            events: List of events to insert
+            events: List of Event objects to insert.
             
         Returns:
-            Number of events inserted
+            The number of events that were attempted to be inserted.
+            Note that individual insert failures are logged but do not
+            prevent other events from being inserted.
         """
         for event in events:
             try:
@@ -146,7 +160,14 @@ class EventDatabase:
         return len(events)
     
     def _row_to_event(self, row: tuple) -> Event:
-        """Convert a database row to an Event object."""
+        """Convert a database row to an Event object.
+        
+        Args:
+            row: A tuple containing the database row values in column order.
+        
+        Returns:
+            An Event object populated with values from the database row.
+        """
         # Parse metadata JSON
         metadata = {}
         if row[14]:
@@ -182,18 +203,18 @@ class EventDatabase:
         sources: Optional[List[str]] = None,
         limit: int = 1000
     ) -> List[Event]:
-        """
-        Query events within a time range.
+        """Query events within a time range.
         
         Args:
-            start_time: Start of time range
-            end_time: End of time range
-            event_types: Optional filter by event types
-            sources: Optional filter by sources
-            limit: Maximum number of events to return
+            start_time: Start of the time range (inclusive).
+            end_time: End of the time range (inclusive).
+            event_types: Optional list of EventType values to filter by.
+            sources: Optional list of source names to filter by.
+            limit: Maximum number of events to return. Defaults to 1000.
             
         Returns:
-            List of matching events
+            A list of Event objects matching the criteria, ordered by
+            timestamp descending (most recent first).
         """
         query = "SELECT * FROM events WHERE timestamp >= ? AND timestamp <= ?"
         params: List[Any] = [start_time, end_time]
@@ -219,15 +240,18 @@ class EventDatabase:
         subject: str,
         limit: int = 100
     ) -> List[Event]:
-        """
-        Query events related to a specific subject.
+        """Query events related to a specific subject.
+        
+        Performs a partial match search on both subject and subject_secondary
+        fields using SQL LIKE with wildcards.
         
         Args:
-            subject: Subject to search for (partial match)
-            limit: Maximum number of events to return
+            subject: Subject string to search for (partial match supported).
+            limit: Maximum number of events to return. Defaults to 100.
             
         Returns:
-            List of matching events
+            A list of Event objects matching the subject, ordered by
+            timestamp descending (most recent first).
         """
         result = self._conn.execute("""
             SELECT * FROM events 
@@ -243,15 +267,15 @@ class EventDatabase:
         repository: str,
         limit: int = 100
     ) -> List[Event]:
-        """
-        Query events related to a specific repository.
+        """Query events related to a specific repository.
         
         Args:
-            repository: Repository path
-            limit: Maximum number of events to return
+            repository: The exact repository path to match.
+            limit: Maximum number of events to return. Defaults to 100.
             
         Returns:
-            List of matching events
+            A list of Event objects for the repository, ordered by
+            timestamp descending (most recent first).
         """
         result = self._conn.execute("""
             SELECT * FROM events 
@@ -267,15 +291,15 @@ class EventDatabase:
         minutes: int = 60,
         limit: int = 500
     ) -> List[Event]:
-        """
-        Get events from the last N minutes.
+        """Get events from the last N minutes.
         
         Args:
-            minutes: Number of minutes to look back
-            limit: Maximum number of events to return
+            minutes: Number of minutes to look back from now. Defaults to 60.
+            limit: Maximum number of events to return. Defaults to 500.
             
         Returns:
-            List of recent events
+            A list of Event objects from the specified time window,
+            ordered by timestamp descending (most recent first).
         """
         from datetime import timedelta
         end_time = datetime.now()
@@ -287,15 +311,16 @@ class EventDatabase:
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None
     ) -> int:
-        """
-        Get the count of events in a time range.
+        """Get the count of events in a time range.
         
         Args:
-            start_time: Optional start time
-            end_time: Optional end time
+            start_time: Optional start of time range (inclusive).
+                If not provided, no lower bound is applied.
+            end_time: Optional end of time range (inclusive).
+                If not provided, no upper bound is applied.
             
         Returns:
-            Number of events
+            The total number of events matching the time criteria.
         """
         query = "SELECT COUNT(*) FROM events"
         params: List[Any] = []
@@ -314,11 +339,11 @@ class EventDatabase:
         return result.fetchone()[0]
     
     def get_event_type_counts(self) -> Dict[str, int]:
-        """
-        Get counts of events by type.
+        """Get counts of events by type.
         
         Returns:
-            Dictionary mapping event types to counts
+            A dictionary mapping event type strings to their counts,
+            ordered by count descending.
         """
         result = self._conn.execute("""
             SELECT event_type, COUNT(*) as count
@@ -335,16 +360,19 @@ class EventDatabase:
         end_time: Optional[datetime] = None,
         batch_size: int = 1000
     ) -> Iterator[Event]:
-        """
-        Iterate over events in batches.
+        """Iterate over events in batches.
+        
+        Provides memory-efficient iteration over large result sets by
+        fetching events in batches.
         
         Args:
-            start_time: Optional start time
-            end_time: Optional end time
-            batch_size: Number of events per batch
+            start_time: Optional start of time range (inclusive).
+            end_time: Optional end of time range (inclusive).
+            batch_size: Number of events to fetch per database query.
+                Defaults to 1000.
             
         Yields:
-            Event objects
+            Event objects ordered by timestamp ascending.
         """
         query = "SELECT * FROM events"
         params: List[Any] = []
@@ -376,6 +404,9 @@ class EventDatabase:
             offset += batch_size
     
     def vacuum(self) -> None:
-        """Optimize the database by running VACUUM."""
+        """Optimize the database by running VACUUM.
+        
+        Reclaims unused space and optimizes the database file.
+        """
         self._conn.execute("VACUUM")
         self.logger.info("Database vacuumed")

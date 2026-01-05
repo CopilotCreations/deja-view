@@ -18,29 +18,59 @@ class TestNarrativeGenerator:
     
     @pytest.fixture
     def database(self, test_config):
-        """Create a test database with events."""
+        """Create a test database with events.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+
+        Returns:
+            EventDatabase: Connected database instance for testing.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         return db
     
     @pytest.fixture
     def graph(self, test_config):
-        """Create a test graph."""
+        """Create a test graph.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+
+        Returns:
+            ActivityGraph: Graph instance for testing.
+        """
         return ActivityGraph(test_config.graph_path)
     
     @pytest.fixture
     def generator(self, database, graph):
-        """Create a narrative generator."""
+        """Create a narrative generator.
+
+        Args:
+            database: Pytest fixture providing test database.
+            graph: Pytest fixture providing test activity graph.
+
+        Returns:
+            NarrativeGenerator: Generator instance for testing.
+        """
         return NarrativeGenerator(database, graph)
     
     def test_format_duration(self, generator):
-        """Test duration formatting."""
+        """Test duration formatting.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+        """
         assert generator._format_duration(30) == "30 seconds"
         assert generator._format_duration(120) == "2 minutes"
         assert generator._format_duration(3700) == "1 hours, 1 minutes"
     
     def test_format_time_range_same_day(self, generator):
-        """Test time range formatting for same day."""
+        """Test time range formatting for same day.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+        """
         start = datetime(2024, 1, 15, 10, 0)
         end = datetime(2024, 1, 15, 12, 30)
         
@@ -50,7 +80,11 @@ class TestNarrativeGenerator:
         assert "12:30" in result
     
     def test_format_time_range_different_days(self, generator):
-        """Test time range formatting for different days."""
+        """Test time range formatting for different days.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+        """
         start = datetime(2024, 1, 15, 10, 0)
         end = datetime(2024, 1, 16, 12, 30)
         
@@ -60,7 +94,12 @@ class TestNarrativeGenerator:
         assert "01-15" in result or "2024" in result
     
     def test_explain_empty_period(self, generator, database):
-        """Test explanation for period with no events."""
+        """Test explanation for period with no events.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+            database: Pytest fixture providing test database.
+        """
         database.close()
         database.connect()  # Fresh database
         
@@ -70,7 +109,13 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_explain_with_events(self, generator, database, sample_events):
-        """Test explanation with events."""
+        """Test explanation with events.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+            database: Pytest fixture providing test database.
+            sample_events: Pytest fixture providing sample Event objects.
+        """
         database.insert_events(sample_events)
         
         result = generator.explain_last(60)
@@ -80,7 +125,12 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_trace_subject_not_found(self, generator, database):
-        """Test trace for nonexistent subject."""
+        """Test trace for nonexistent subject.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+            database: Pytest fixture providing test database.
+        """
         database.close()
         database.connect()
         
@@ -90,7 +140,13 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_trace_subject_with_events(self, generator, database, sample_events):
-        """Test trace for subject with events."""
+        """Test trace for subject with events.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+            database: Pytest fixture providing test database.
+            sample_events: Pytest fixture providing sample Event objects.
+        """
         database.insert_events(sample_events)
         
         result = generator.trace_subject("file1.py")
@@ -100,7 +156,11 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_generate_window_summary(self, generator):
-        """Test window summary generation."""
+        """Test window summary generation.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+        """
         now = datetime.now()
         window = ActivityWindow(
             start_time=now - timedelta(minutes=15),
@@ -124,7 +184,12 @@ class TestNarrativeGenerator:
         assert "15 minutes" in summary or "file" in summary.lower()
     
     def test_llm_hook_isolation(self, database, graph):
-        """Test that LLM hook is properly isolated."""
+        """Test that LLM hook is properly isolated.
+
+        Args:
+            database: Pytest fixture providing test database.
+            graph: Pytest fixture providing test activity graph.
+        """
         llm_called = False
         
         def mock_llm(prompt):
@@ -149,7 +214,12 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_stalls_report(self, generator, database):
-        """Test stalls report generation."""
+        """Test stalls report generation.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+            database: Pytest fixture providing test database.
+        """
         # Add events with a long gap
         now = datetime.now()
         events = [
@@ -176,14 +246,25 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_context_switches_report(self, generator, database):
-        """Test context switches report generation."""
+        """Test context switches report generation.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+            database: Pytest fixture providing test database.
+        """
         result = generator.explain_context_switches()
         
         assert "Context Switch" in result
         database.close()
     
     def test_explain_time_window(self, generator, database, sample_events):
-        """Test explaining a specific time window."""
+        """Test explaining a specific time window.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+            database: Pytest fixture providing test database.
+            sample_events: Pytest fixture providing sample Event objects.
+        """
         database.insert_events(sample_events)
         
         now = datetime.now()
@@ -196,7 +277,11 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_get_file_summary(self, generator):
-        """Test file summary generation."""
+        """Test file summary generation.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+        """
         paths = [
             "/project/src/main.py",
             "/project/src/utils.py",
@@ -208,12 +293,20 @@ class TestNarrativeGenerator:
         assert "3 files" in summary
     
     def test_get_file_summary_empty(self, generator):
-        """Test file summary with no files."""
+        """Test file summary with no files.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+        """
         summary = generator._get_file_summary([])
         assert "no files" in summary
     
     def test_get_file_summary_multiple_dirs(self, generator):
-        """Test file summary with multiple directories."""
+        """Test file summary with multiple directories.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+        """
         paths = [
             "/project/src/main.py",
             "/project/tests/test_main.py",
@@ -225,7 +318,12 @@ class TestNarrativeGenerator:
         assert "directories" in summary
     
     def test_llm_hook_error_handling(self, database, graph):
-        """Test that LLM hook errors are handled gracefully."""
+        """Test that LLM hook errors are handled gracefully.
+
+        Args:
+            database: Pytest fixture providing test database.
+            graph: Pytest fixture providing test activity graph.
+        """
         def failing_llm(prompt):
             raise Exception("LLM error")
         
@@ -245,7 +343,11 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_task_descriptions(self, generator):
-        """Test that all task types have descriptions."""
+        """Test that all task types have descriptions.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+        """
         task_types = ["coding", "research", "git_workflow", "terminal_work", 
                       "file_organization", "general_activity"]
         
@@ -254,7 +356,12 @@ class TestNarrativeGenerator:
             assert desc is not None, f"Missing description for {task}"
     
     def test_stalls_no_events(self, database, graph):
-        """Test stalls report with no events."""
+        """Test stalls report with no events.
+
+        Args:
+            database: Pytest fixture providing test database.
+            graph: Pytest fixture providing test activity graph.
+        """
         generator = NarrativeGenerator(database, graph)
         
         result = generator.explain_stalls()
@@ -263,7 +370,12 @@ class TestNarrativeGenerator:
         database.close()
     
     def test_context_switches_with_events(self, generator, database):
-        """Test context switches with actual events."""
+        """Test context switches with actual events.
+
+        Args:
+            generator: Pytest fixture providing NarrativeGenerator instance.
+            database: Pytest fixture providing test database.
+        """
         now = datetime.now()
         events = [
             # Coding session

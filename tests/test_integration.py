@@ -32,7 +32,11 @@ class TestEndToEndWorkflow:
     """End-to-end workflow tests."""
     
     def test_full_event_lifecycle(self, test_config):
-        """Test events from collection through analysis and reporting."""
+        """Test events from collection through analysis and reporting.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         # Create components
         db = EventDatabase(test_config.database_path)
         db.connect()
@@ -86,7 +90,11 @@ class TestEndToEndWorkflow:
         db.close()
     
     def test_graph_window_integration(self, test_config):
-        """Test adding activity windows to graph."""
+        """Test adding activity windows to graph.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         graph = ActivityGraph(test_config.graph_path)
         
         now = datetime.now()
@@ -128,7 +136,11 @@ class TestBrowserCollectorIntegration:
     """Integration tests for browser collector with actual SQLite DB."""
     
     def test_read_chrome_history_mock(self, temp_data_dir):
-        """Test reading Chrome history from mock database."""
+        """Test reading Chrome history from mock database.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         # Create a mock Chrome history database
         history_db = temp_data_dir / "History"
         conn = sqlite3.connect(str(history_db))
@@ -169,7 +181,11 @@ class TestBrowserCollectorIntegration:
         assert len(visits) >= 1
     
     def test_read_firefox_history_mock(self, temp_data_dir):
-        """Test reading Firefox history from mock database."""
+        """Test reading Firefox history from mock database.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         # Create a mock Firefox history database
         places_db = temp_data_dir / "places.sqlite"
         conn = sqlite3.connect(str(places_db))
@@ -214,7 +230,11 @@ class TestTerminalCollectorIntegration:
     """Integration tests for terminal collector."""
     
     def test_read_bash_history_file(self, temp_data_dir):
-        """Test reading actual bash history file."""
+        """Test reading actual bash history file.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         history_file = temp_data_dir / ".bash_history"
         
         # Write test history
@@ -234,7 +254,11 @@ make build
         assert len(commands) >= 2
     
     def test_read_zsh_history_file(self, temp_data_dir):
-        """Test reading actual zsh history file."""
+        """Test reading actual zsh history file.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         history_file = temp_data_dir / ".zsh_history"
         
         # Write test history in extended format
@@ -256,7 +280,11 @@ class TestGitCollectorIntegration:
     """Integration tests for git collector."""
     
     def test_find_git_repos(self, temp_data_dir):
-        """Test finding git repositories."""
+        """Test finding git repositories.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         # Create a fake git repo
         repo_dir = temp_data_dir / "project"
         repo_dir.mkdir()
@@ -271,7 +299,11 @@ class TestGitCollectorIntegration:
     
     @pytest.mark.asyncio
     async def test_git_collect_cycle(self, temp_data_dir):
-        """Test git collection cycle."""
+        """Test git collection cycle.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         # Create a fake repo
         repo_dir = temp_data_dir / "project"
         repo_dir.mkdir()
@@ -293,7 +325,11 @@ class TestProcessCollectorIntegration:
     
     @pytest.mark.asyncio
     async def test_process_collect_cycle(self):
-        """Test process collection cycle."""
+        """Test process collection cycle.
+
+        Verifies that the process collector can start, run a collection
+        cycle, and stop without errors.
+        """
         collector = ProcessCollector(poll_interval=1)
         
         events_collected = []
@@ -313,7 +349,11 @@ class TestFilesystemCollectorIntegration:
     
     @pytest.mark.asyncio
     async def test_filesystem_watch_cycle(self, temp_data_dir):
-        """Test filesystem watch cycle."""
+        """Test filesystem watch cycle.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = FilesystemCollector(watch_paths=[temp_data_dir])
         
         await collector.start()
@@ -332,7 +372,11 @@ class TestDatabaseEdgeCases:
     """Edge case tests for database operations."""
     
     def test_insert_event_with_empty_metadata(self, test_config):
-        """Test inserting event with empty metadata."""
+        """Test inserting event with empty metadata.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         
@@ -350,7 +394,11 @@ class TestDatabaseEdgeCases:
         db.close()
     
     def test_query_empty_time_range(self, test_config):
-        """Test querying with no events in range."""
+        """Test querying with no events in range.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         
@@ -366,7 +414,11 @@ class TestGraphEdgeCases:
     """Edge case tests for activity graph."""
     
     def test_add_git_event_without_repo(self, temp_data_dir):
-        """Test adding git event without repository."""
+        """Test adding git event without repository.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         graph = ActivityGraph(temp_data_dir / "test.gpickle")
         
         event = Event(
@@ -383,7 +435,11 @@ class TestGraphEdgeCases:
         assert stats["nodes"] >= 0
     
     def test_find_related_nonexistent(self, temp_data_dir):
-        """Test finding related nodes for nonexistent node."""
+        """Test finding related nodes for nonexistent node.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         graph = ActivityGraph(temp_data_dir / "test.gpickle")
         
         related = graph.get_related_nodes("nonexistent:node")
@@ -395,7 +451,10 @@ class TestInferenceEdgeCases:
     """Edge case tests for inference engine."""
     
     def test_analyze_empty_windows(self):
-        """Test analyzing empty window list."""
+        """Test analyzing empty window list.
+
+        Verifies that the inference engine handles an empty list gracefully.
+        """
         engine = InferenceEngine()
         
         result = engine.analyze_windows([])
@@ -403,7 +462,10 @@ class TestInferenceEdgeCases:
         assert result == []
     
     def test_summary_empty_windows(self):
-        """Test summary for empty windows."""
+        """Test summary for empty windows.
+
+        Verifies that the summary returns zero totals for empty input.
+        """
         engine = InferenceEngine()
         
         summary = engine.get_activity_summary([])
@@ -415,7 +477,11 @@ class TestMoreCollectorCoverage:
     """Additional collector tests for coverage."""
     
     def test_git_run_command_timeout(self, temp_data_dir):
-        """Test git command with nonexistent repo."""
+        """Test git command with nonexistent repo.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = GitCollector(watch_paths=[temp_data_dir])
         
         # This should return None for non-git directory
@@ -423,7 +489,10 @@ class TestMoreCollectorCoverage:
         assert result is None
     
     def test_terminal_ignore_la(self):
-        """Test terminal ignores common aliases."""
+        """Test terminal ignores common aliases.
+
+        Verifies that common shell aliases like la, ll, and l are ignored.
+        """
         collector = TerminalCollector()
         
         assert collector._should_ignore("la")
@@ -431,7 +500,11 @@ class TestMoreCollectorCoverage:
         assert collector._should_ignore("l")
     
     def test_filesystem_no_repo(self, temp_data_dir):
-        """Test filesystem collector without repo."""
+        """Test filesystem collector without repo.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = FilesystemCollector(watch_paths=[temp_data_dir])
         
         # No .git directory
@@ -439,7 +512,10 @@ class TestMoreCollectorCoverage:
         assert repo is None
     
     def test_browser_event_without_domain(self):
-        """Test browser event with invalid URL."""
+        """Test browser event with invalid URL.
+
+        Verifies that event creation handles malformed URLs gracefully.
+        """
         collector = BrowserCollector()
         
         visit = {
@@ -454,7 +530,10 @@ class TestMoreCollectorCoverage:
         assert event is not None
     
     def test_process_event_no_category(self):
-        """Test process event creation without category."""
+        """Test process event creation without category.
+
+        Verifies that events for unknown processes have no category.
+        """
         collector = ProcessCollector()
         
         proc_info = {
@@ -471,7 +550,10 @@ class TestMoreCollectorCoverage:
         assert event.metadata.get("category") is None
     
     def test_terminal_extract_paths(self):
-        """Test extracting paths from commands."""
+        """Test extracting paths from commands.
+
+        Verifies that file paths are extracted from shell commands.
+        """
         collector = TerminalCollector()
         
         cmd = {
@@ -485,7 +567,10 @@ class TestMoreCollectorCoverage:
         assert len(event.metadata.get("referenced_files", [])) >= 1
     
     def test_git_commit_event_creation(self):
-        """Test git commit event creation."""
+        """Test git commit event creation.
+
+        Verifies that commit events are created with correct attributes.
+        """
         collector = GitCollector()
         
         commit = {
@@ -503,7 +588,11 @@ class TestMoreCollectorCoverage:
     
     @pytest.mark.asyncio
     async def test_filesystem_queue_processing(self, temp_data_dir):
-        """Test filesystem collector queue processing."""
+        """Test filesystem collector queue processing.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = FilesystemCollector(watch_paths=[temp_data_dir])
         events_collected = []
         collector.set_event_callback(lambda e: events_collected.append(e))
@@ -523,7 +612,12 @@ class TestConfigMoreCoverage:
     """Additional config tests."""
     
     def test_config_from_env_watch_paths(self, temp_data_dir, monkeypatch):
-        """Test config with custom watch paths from env."""
+        """Test config with custom watch paths from env.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+            monkeypatch: Pytest fixture for setting environment variables.
+        """
         from deja_view.config import Config
         
         monkeypatch.setenv("DEJA_WATCH_PATHS", f"{temp_data_dir},~")
@@ -537,7 +631,12 @@ class TestNarrativeMoreCoverage:
     """Additional narrative tests."""
     
     def test_trace_with_graph_matches(self, test_config, sample_events):
-        """Test trace with graph node matches."""
+        """Test trace with graph node matches.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+            sample_events: Pytest fixture providing sample event data.
+        """
         from deja_view.reporting.narrative import NarrativeGenerator
         
         db = EventDatabase(test_config.database_path)
@@ -556,7 +655,11 @@ class TestNarrativeMoreCoverage:
         db.close()
     
     def test_explain_with_task_distribution(self, test_config):
-        """Test explain shows task distribution."""
+        """Test explain shows task distribution.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         graph = ActivityGraph(test_config.graph_path)
@@ -591,7 +694,11 @@ class TestDaemonMoreCoverage:
     
     @pytest.mark.asyncio
     async def test_daemon_signal_handlers(self, test_config):
-        """Test daemon signal handler setup."""
+        """Test daemon signal handler setup.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
@@ -604,7 +711,11 @@ class TestDaemonMoreCoverage:
     
     @pytest.mark.asyncio
     async def test_daemon_collector_count(self, test_config):
-        """Test daemon collectors are initialized."""
+        """Test daemon collectors are initialized.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
@@ -621,7 +732,12 @@ class TestCLIMoreCoverage:
     """Additional CLI tests for coverage."""
     
     def test_trace_with_output_file(self, test_config, temp_data_dir):
-        """Test trace with output file option."""
+        """Test trace with output file option.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         output_file = temp_data_dir / "trace.md"
         
         result = runner.invoke(app, [
@@ -634,7 +750,11 @@ class TestCLIMoreCoverage:
         assert result.exit_code in [0, 1]
     
     def test_events_with_all_options(self, test_config):
-        """Test events command with all options."""
+        """Test events command with all options.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, [
             "events",
             "--limit", "5",
@@ -644,7 +764,12 @@ class TestCLIMoreCoverage:
         assert result.exit_code in [0, 1]
     
     def test_explain_with_output_file(self, test_config, temp_data_dir):
-        """Test explain with output file."""
+        """Test explain with output file.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         output_file = temp_data_dir / "explain.md"
         
         result = runner.invoke(app, [
@@ -660,7 +785,11 @@ class TestGraphMoreCoverage:
     """Additional graph tests."""
     
     def test_add_multiple_windows(self, temp_data_dir):
-        """Test adding multiple windows to graph."""
+        """Test adding multiple windows to graph.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         graph = ActivityGraph(temp_data_dir / "test.gpickle")
         
         now = datetime.now()
@@ -683,7 +812,11 @@ class TestGraphMoreCoverage:
         assert stats["nodes"] >= 3
     
     def test_graph_statistics(self, temp_data_dir):
-        """Test graph statistics."""
+        """Test graph statistics.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         graph = ActivityGraph(temp_data_dir / "test.gpickle")
         
         event = Event(
@@ -704,7 +837,10 @@ class TestMoreBrowserCoverage:
     """Additional browser collector tests."""
     
     def test_should_ignore_edge_urls(self):
-        """Test ignoring Edge-specific URLs."""
+        """Test ignoring Edge-specific URLs.
+
+        Verifies that internal Edge browser URLs are filtered out.
+        """
         collector = BrowserCollector()
         
         assert collector._should_ignore_url("edge://settings")
@@ -712,7 +848,10 @@ class TestMoreBrowserCoverage:
         assert not collector._should_ignore_url("https://microsoft.com")
     
     def test_create_event_with_path_in_url(self):
-        """Test event creation with path in URL."""
+        """Test event creation with path in URL.
+
+        Verifies that URLs with paths and query strings are handled.
+        """
         collector = BrowserCollector()
         
         visit = {
@@ -732,14 +871,20 @@ class TestMoreProcessCoverage:
     """Additional process collector tests."""
     
     def test_categorize_ide_processes(self):
-        """Test categorization of IDE processes."""
+        """Test categorization of IDE processes.
+
+        Verifies that IDE processes are categorized as editors.
+        """
         collector = ProcessCollector()
         
         assert collector._categorize_process("code") == "editor"
         assert collector._categorize_process("pycharm") == "editor"
     
     def test_categorize_browsers(self):
-        """Test categorization of browser processes."""
+        """Test categorization of browser processes.
+
+        Verifies that browser processes are correctly identified.
+        """
         collector = ProcessCollector()
         
         assert collector._categorize_process("chrome") == "browser"
@@ -750,7 +895,11 @@ class TestMoreGitCoverage:
     """Additional git collector tests."""
     
     def test_find_git_repos_in_tree(self, temp_data_dir):
-        """Test finding git repositories in directory tree."""
+        """Test finding git repositories in directory tree.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = GitCollector(watch_paths=[temp_data_dir])
         
         # Create nested repo
@@ -768,7 +917,11 @@ class TestMoreTerminalCoverage:
     """Additional terminal collector tests."""
     
     def test_should_ignore_basic_commands(self):
-        """Test that basic commands are ignored."""
+        """Test that basic commands are ignored.
+
+        Verifies that common shell commands are filtered while
+        development commands are tracked.
+        """
         collector = TerminalCollector()
         
         assert collector._should_ignore("ls")
@@ -784,7 +937,12 @@ class TestConfigEnvVars:
     """Config environment variable tests."""
     
     def test_config_from_env_with_custom_data_dir(self, temp_data_dir, monkeypatch):
-        """Test config with custom data directory."""
+        """Test config with custom data directory.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+            monkeypatch: Pytest fixture for setting environment variables.
+        """
         from deja_view.config import Config
         
         custom_dir = temp_data_dir / "custom_data"
@@ -797,7 +955,10 @@ class TestConfigEnvVars:
         assert str(custom_dir) in str(config.data_dir)
     
     def test_config_default_values(self):
-        """Test config default values."""
+        """Test config default values.
+
+        Verifies that configuration has sensible defaults.
+        """
         from deja_view.config import Config
         
         config = Config()
@@ -810,21 +971,32 @@ class TestCLICommandOutputs:
     """Tests for CLI command outputs."""
     
     def test_version_contains_version_number(self):
-        """Test version command shows version number."""
+        """Test version command shows version number.
+
+        Verifies that the version command outputs version info.
+        """
         result = runner.invoke(app, ["version"])
         
         assert result.exit_code == 0
         assert "0.1.0" in result.output or "Fortuna" in result.output
     
     def test_status_shows_status_info(self, test_config):
-        """Test status shows daemon status information."""
+        """Test status shows daemon status information.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["status"])
         
         # Should show status table with version and directory info
         assert "Status" in result.output or "Version" in result.output
     
     def test_events_shows_output(self, test_config):
-        """Test events command produces output."""
+        """Test events command produces output.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["events"])
         
         # Should have some output
@@ -835,7 +1007,10 @@ class TestProcessCollectorMore:
     """More process collector tests."""
     
     def test_categorize_terminal_processes(self):
-        """Test categorization of terminal processes."""
+        """Test categorization of terminal processes.
+
+        Verifies that terminal emulators are correctly identified.
+        """
         collector = ProcessCollector()
         
         assert collector._categorize_process("Terminal") == "terminal"
@@ -843,7 +1018,10 @@ class TestProcessCollectorMore:
         assert collector._categorize_process("gnome-terminal") == "terminal"
     
     def test_categorize_communication_processes(self):
-        """Test categorization of communication processes."""
+        """Test categorization of communication processes.
+
+        Verifies that chat apps are categorized as communication.
+        """
         collector = ProcessCollector()
         
         assert collector._categorize_process("slack") == "communication"
@@ -856,7 +1034,11 @@ class TestDaemonLifecycle:
     
     @pytest.mark.asyncio
     async def test_daemon_restart(self, test_config):
-        """Test daemon can be restarted."""
+        """Test daemon can be restarted.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
@@ -880,7 +1062,11 @@ class TestGraphOperations:
     """Tests for graph operations."""
     
     def test_graph_find_by_type(self, temp_data_dir):
-        """Test finding nodes by type."""
+        """Test finding nodes by type.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         graph = ActivityGraph(temp_data_dir / "test.gpickle")
         
         # Add various node types
@@ -900,7 +1086,11 @@ class TestGraphOperations:
         assert stats["node_types"].get("file", 0) >= 1
     
     def test_graph_edge_creation(self, temp_data_dir):
-        """Test edge creation between related nodes."""
+        """Test edge creation between related nodes.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         graph = ActivityGraph(temp_data_dir / "test.gpickle")
         
         now = datetime.now()
@@ -934,7 +1124,10 @@ class TestInferenceWindows:
     """Tests for inference window operations."""
     
     def test_create_windows_from_sparse_events(self):
-        """Test window creation with sparse events."""
+        """Test window creation with sparse events.
+
+        Verifies that events far apart create separate windows.
+        """
         engine = InferenceEngine(window_minutes=15)
         
         now = datetime.now()
@@ -959,7 +1152,10 @@ class TestInferenceWindows:
         assert len(windows) >= 2
     
     def test_analyze_window_with_git_focus(self):
-        """Test analysis of git-focused window."""
+        """Test analysis of git-focused window.
+
+        Verifies that windows with git events are properly analyzed.
+        """
         engine = InferenceEngine()
         
         now = datetime.now()
@@ -988,42 +1184,74 @@ class TestMoreCLICoverage:
     """More CLI tests for coverage."""
     
     def test_explain_30m_format(self, test_config):
-        """Test explain with 30m time format."""
+        """Test explain with 30m time format.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["explain", "--last", "30m"])
         assert result.exit_code in [0, 1]
     
     def test_explain_1h_format(self, test_config):
-        """Test explain with 1h time format."""
+        """Test explain with 1h time format.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["explain", "--last", "1h"])
         assert result.exit_code in [0, 1]
     
     def test_explain_1d_format(self, test_config):
-        """Test explain with 1d time format."""
+        """Test explain with 1d time format.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["explain", "--last", "1d"])
         assert result.exit_code in [0, 1]
     
     def test_trace_url(self, test_config):
-        """Test tracing a URL."""
+        """Test tracing a URL.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["trace", "https://example.com"])
         assert result.exit_code in [0, 1]
     
     def test_trace_file_path(self, test_config):
-        """Test tracing a file path."""
+        """Test tracing a file path.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["trace", "/path/to/file.py"])
         assert result.exit_code in [0, 1]
     
     def test_events_with_type_browser(self, test_config):
-        """Test events with browser type filter."""
+        """Test events with browser type filter.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["events", "--type", "browser"])
         assert result.exit_code in [0, 1]
     
     def test_events_with_type_git(self, test_config):
-        """Test events with git type filter."""
+        """Test events with git type filter.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["events", "--type", "git"])
         assert result.exit_code in [0, 1]
     
     def test_graph_stats_output(self, test_config):
-        """Test graph-stats command produces output."""
+        """Test graph-stats command produces output.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         result = runner.invoke(app, ["graph-stats"])
         # Should produce some output
         assert result.output is not None or result.exit_code in [0, 1]
@@ -1033,7 +1261,11 @@ class TestMoreDatabaseCoverage:
     """More database tests for coverage."""
     
     def test_insert_many_events(self, test_config):
-        """Test inserting many events at once."""
+        """Test inserting many events at once.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         
@@ -1054,7 +1286,11 @@ class TestMoreDatabaseCoverage:
         db.close()
     
     def test_get_events_for_url(self, test_config):
-        """Test getting events for a URL."""
+        """Test getting events for a URL.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         
@@ -1076,7 +1312,10 @@ class TestModelValidation:
     """Tests for model validation."""
     
     def test_event_with_all_optional_fields(self):
-        """Test creating an event with all optional fields."""
+        """Test creating an event with all optional fields.
+
+        Verifies that all optional event fields are properly set.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -1098,7 +1337,10 @@ class TestModelValidation:
         assert event.repository == "/project"
     
     def test_activity_window_with_events(self):
-        """Test creating an activity window with events."""
+        """Test creating an activity window with events.
+
+        Verifies that activity windows are created with all attributes.
+        """
         now = datetime.now()
         events = [
             Event(
@@ -1126,7 +1368,11 @@ class TestTerminalReadHistory:
     """Tests for terminal history reading."""
     
     def test_read_new_history_file_shrunk(self, temp_data_dir):
-        """Test reading history when file has shrunk."""
+        """Test reading history when file has shrunk.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = TerminalCollector()
         
         history_file = temp_data_dir / ".bash_history"
@@ -1141,7 +1387,11 @@ class TestTerminalReadHistory:
         assert len(commands) >= 1
     
     def test_read_new_history_no_new_content(self, temp_data_dir):
-        """Test reading when no new content."""
+        """Test reading when no new content.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = TerminalCollector()
         
         history_file = temp_data_dir / ".bash_history"
@@ -1160,7 +1410,10 @@ class TestProcessIntegration:
     """Integration tests for process collector."""
     
     def test_should_track_tracked_process(self):
-        """Test should_track with tracked process."""
+        """Test should_track with tracked process.
+
+        Verifies that known processes are tracked.
+        """
         collector = ProcessCollector()
         
         info = {
@@ -1172,7 +1425,10 @@ class TestProcessIntegration:
         assert collector._should_track(info)
     
     def test_should_track_high_cpu_unknown(self):
-        """Test tracking high CPU unknown process."""
+        """Test tracking high CPU unknown process.
+
+        Verifies that high CPU processes are tracked regardless of name.
+        """
         collector = ProcessCollector()
         
         info = {
@@ -1189,7 +1445,10 @@ class TestBrowserIntegration:
     
     @pytest.mark.asyncio
     async def test_browser_collect_no_databases(self):
-        """Test browser collect when no databases exist."""
+        """Test browser collect when no databases exist.
+
+        Verifies that collection handles missing history databases.
+        """
         collector = BrowserCollector()
         collector.chrome_path = None
         collector.firefox_path = None
@@ -1210,7 +1469,11 @@ class TestFilesystemIntegration:
     """Additional filesystem collector tests."""
     
     def test_create_delete_event(self, temp_data_dir):
-        """Test creating delete event."""
+        """Test creating delete event.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = FilesystemCollector(watch_paths=[temp_data_dir])
         
         event = collector._create_event(
@@ -1223,7 +1486,11 @@ class TestFilesystemIntegration:
         assert "deleted" in event.description.lower()
     
     def test_create_modify_event(self, temp_data_dir):
-        """Test creating modify event."""
+        """Test creating modify event.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         collector = FilesystemCollector(watch_paths=[temp_data_dir])
         
         event = collector._create_event(
@@ -1241,7 +1508,11 @@ class TestTerminalCollectorMore:
     
     @pytest.mark.asyncio
     async def test_terminal_start_stop(self, temp_data_dir):
-        """Test terminal collector start and stop."""
+        """Test terminal collector start and stop.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         history_file = temp_data_dir / ".bash_history"
         history_file.write_text("git status\n")
         
@@ -1261,7 +1532,11 @@ class TestDaemonHandleEvent:
     
     @pytest.mark.asyncio
     async def test_daemon_handles_multiple_events(self, test_config):
-        """Test daemon handles multiple events."""
+        """Test daemon handles multiple events.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
@@ -1285,7 +1560,11 @@ class TestGraphWindowEdges:
     """Tests for graph window edge creation."""
     
     def test_window_with_many_events(self, temp_data_dir):
-        """Test window with many events creates proper edges."""
+        """Test window with many events creates proper edges.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         graph = ActivityGraph(temp_data_dir / "test.gpickle")
         
         now = datetime.now()
@@ -1315,7 +1594,11 @@ class TestNarrativeEdgeCases:
     """Edge case tests for narrative generator."""
     
     def test_explain_with_mixed_event_types(self, test_config):
-        """Test explain with mixed event types."""
+        """Test explain with mixed event types.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         graph = ActivityGraph(test_config.graph_path)
@@ -1357,7 +1640,10 @@ class TestEventTypeEnums:
     """Tests for event type enums."""
     
     def test_all_event_types(self):
-        """Test all event types are valid."""
+        """Test all event types are valid.
+
+        Verifies that events can be created with each EventType enum.
+        """
         event_types = [
             EventType.FILE_CREATE,
             EventType.FILE_MODIFY,
@@ -1384,7 +1670,10 @@ class TestInferenceAdvanced:
     """Advanced inference engine tests."""
     
     def test_detect_research_pattern(self):
-        """Test detecting research pattern from browser events."""
+        """Test detecting research pattern from browser events.
+
+        Verifies that browsing documentation is classified as research.
+        """
         engine = InferenceEngine()
         
         now = datetime.now()
@@ -1420,7 +1709,10 @@ class TestInferenceAdvanced:
         assert analyzed[0].task_label in ["research", "general_activity"]
     
     def test_activity_summary_with_windows(self):
-        """Test activity summary with windows."""
+        """Test activity summary with windows.
+
+        Verifies that summary contains task distribution data.
+        """
         engine = InferenceEngine()
         
         now = datetime.now()
@@ -1453,7 +1745,11 @@ class TestDaemonEventCount:
     
     @pytest.mark.asyncio
     async def test_event_count_increments(self, test_config):
-        """Test event count increments with each event."""
+        """Test event count increments with each event.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         from deja_view.daemon import Daemon
         
         daemon = Daemon(test_config)
@@ -1477,7 +1773,10 @@ class TestCollectorRegistry:
     """Tests for collector registry."""
     
     def test_collectors_registry(self):
-        """Test collectors are properly registered."""
+        """Test collectors are properly registered.
+
+        Verifies that all collectors have required methods.
+        """
         from deja_view.collectors import (
             FilesystemCollector,
             GitCollector,
@@ -1506,7 +1805,10 @@ class TestBaseCollectorMethods:
     """Tests for base collector methods."""
     
     def test_collector_is_running(self):
-        """Test is_running property."""
+        """Test is_running property.
+
+        Verifies that the is_running property reflects internal state.
+        """
         from deja_view.collectors.base import BaseCollector
         
         class TestCollector(BaseCollector):
@@ -1528,7 +1830,11 @@ class TestGraphNodeTypes:
     """Tests for graph node types."""
     
     def test_node_type_distribution(self, temp_data_dir):
-        """Test node type distribution in graph."""
+        """Test node type distribution in graph.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         graph = ActivityGraph(temp_data_dir / "test.gpickle")
         
         now = datetime.now()
@@ -1552,7 +1858,11 @@ class TestDatabaseContextManager:
     """Tests for database context manager patterns."""
     
     def test_database_close(self, test_config):
-        """Test database properly closes."""
+        """Test database properly closes.
+
+        Args:
+            test_config: Pytest fixture providing test configuration.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         
@@ -1580,7 +1890,10 @@ class TestInferenceWindowCreation:
     """Tests for inference window creation."""
     
     def test_single_event_window(self):
-        """Test window creation with single event."""
+        """Test window creation with single event.
+
+        Verifies that a single event creates one window.
+        """
         engine = InferenceEngine(window_minutes=15)
         
         now = datetime.now()
@@ -1599,7 +1912,10 @@ class TestInferenceWindowCreation:
         assert len(windows[0].events) == 1
     
     def test_many_events_single_window(self):
-        """Test many events in single window."""
+        """Test many events in single window.
+
+        Verifies that events within window duration are grouped.
+        """
         engine = InferenceEngine(window_minutes=30)
         
         now = datetime.now()
@@ -1624,7 +1940,11 @@ class TestTerminalCollectorCollect:
     
     @pytest.mark.asyncio
     async def test_terminal_collect_with_history(self, temp_data_dir):
-        """Test terminal collect with history file."""
+        """Test terminal collect with history file.
+
+        Args:
+            temp_data_dir: Pytest fixture providing temporary directory path.
+        """
         history_file = temp_data_dir / ".bash_history"
         history_file.write_text("#1704067200\ngit status\n#1704067260\npython script.py\n")
         
@@ -1653,7 +1973,10 @@ class TestFilesystemEventHandlerMore:
     """More tests for filesystem event handler."""
     
     def test_handler_ignores_pycache(self):
-        """Test handler ignores __pycache__ directories."""
+        """Test handler ignores __pycache__ directories.
+
+        Verifies that build artifacts are filtered from events.
+        """
         from queue import Queue
         from deja_view.collectors.filesystem import FilesystemEventHandler
         
@@ -1669,7 +1992,10 @@ class TestProcessCategorization:
     """More tests for process categorization."""
     
     def test_categorize_office_apps(self):
-        """Test categorization of office applications."""
+        """Test categorization of office applications.
+
+        Verifies process categorization for editors and unknown apps.
+        """
         collector = ProcessCollector()
         
         # These should return None or a category
@@ -1686,7 +2012,10 @@ class TestBrowserVisitCreation:
     """Tests for browser visit event creation."""
     
     def test_create_visit_with_long_url(self):
-        """Test creating visit with long URL."""
+        """Test creating visit with long URL.
+
+        Verifies that long URLs are handled correctly.
+        """
         collector = BrowserCollector()
         
         long_url = "https://example.com/" + "a" * 500
@@ -1704,7 +2033,10 @@ class TestBrowserVisitCreation:
         assert event.event_type == EventType.BROWSER_VISIT
     
     def test_create_visit_with_unicode_title(self):
-        """Test creating visit with unicode title."""
+        """Test creating visit with unicode title.
+
+        Verifies that unicode characters in titles are preserved.
+        """
         collector = BrowserCollector()
         
         visit = {

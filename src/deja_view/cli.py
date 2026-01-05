@@ -37,7 +37,11 @@ console = Console()
 
 
 def _get_database() -> EventDatabase:
-    """Get a connected database instance."""
+    """Get a connected database instance.
+
+    Returns:
+        EventDatabase: A connected database instance ready for queries.
+    """
     config = get_config()
     config.ensure_data_dir()
     db = EventDatabase()
@@ -46,7 +50,11 @@ def _get_database() -> EventDatabase:
 
 
 def _get_graph() -> ActivityGraph:
-    """Get an activity graph instance."""
+    """Get an activity graph instance.
+
+    Returns:
+        ActivityGraph: A loaded activity graph instance.
+    """
     graph = ActivityGraph()
     graph.load()
     return graph
@@ -63,8 +71,15 @@ def start(
         help="Enable verbose logging"
     ),
 ) -> None:
-    """Start the Deja View agent."""
-    
+    """Start the Deja View agent.
+
+    Args:
+        foreground: If True, run in foreground instead of as daemon.
+        verbose: If True, enable verbose logging.
+
+    Raises:
+        typer.Exit: If the agent is already running.
+    """
     # Check if already running
     if is_daemon_running():
         pid = get_daemon_pid()
@@ -120,8 +135,11 @@ def start(
 
 @app.command()
 def stop() -> None:
-    """Stop the Deja View agent."""
-    
+    """Stop the Deja View agent.
+
+    Raises:
+        typer.Exit: If the agent is not running or permission is denied.
+    """
     pid = get_daemon_pid()
     if not pid:
         console.print("[yellow]Agent is not running[/yellow]")
@@ -161,8 +179,11 @@ def stop() -> None:
 
 @app.command()
 def status() -> None:
-    """Show the status of the Deja View agent."""
-    
+    """Show the status of the Deja View agent.
+
+    Displays version, data directory, running status, PID, database stats,
+    and activity graph statistics in a formatted table.
+    """
     config = get_config()
     pid = get_daemon_pid()
     
@@ -227,8 +248,15 @@ def explain(
         help="Write output to file instead of stdout"
     ),
 ) -> None:
-    """Explain what you were doing in a time period."""
-    
+    """Explain what you were doing in a time period.
+
+    Args:
+        last: Time period to explain (e.g., 30m, 2h, 1d).
+        output: Optional file path to write the report to.
+
+    Raises:
+        typer.Exit: If the time format is invalid or an error occurs.
+    """
     # Parse time string
     time_str = last.lower()
     try:
@@ -277,8 +305,15 @@ def trace(
         help="Write output to file instead of stdout"
     ),
 ) -> None:
-    """Trace activity related to a file, repo, or URL."""
-    
+    """Trace activity related to a file, repo, or URL.
+
+    Args:
+        target: File path, repository, or URL to trace.
+        output: Optional file path to write the report to.
+
+    Raises:
+        typer.Exit: If an error occurs during tracing.
+    """
     try:
         db = _get_database()
         graph = _get_graph()
@@ -301,8 +336,14 @@ def trace(
 
 @app.command()
 def switches() -> None:
-    """Show context switching patterns."""
-    
+    """Show context switching patterns.
+
+    Analyzes and displays patterns of context switches between different
+    tasks or projects based on recorded activity data.
+
+    Raises:
+        typer.Exit: If an error occurs during analysis.
+    """
     try:
         db = _get_database()
         graph = _get_graph()
@@ -321,8 +362,14 @@ def switches() -> None:
 
 @app.command()
 def stalls() -> None:
-    """Show stalled tasks."""
-    
+    """Show stalled tasks.
+
+    Identifies and displays tasks that appear to be stalled or have had
+    no recent activity, helping to surface forgotten or blocked work.
+
+    Raises:
+        typer.Exit: If an error occurs during analysis.
+    """
     try:
         db = _get_database()
         graph = _get_graph()
@@ -357,8 +404,16 @@ def events(
         help="Filter by event type"
     ),
 ) -> None:
-    """List recent events."""
-    
+    """List recent events.
+
+    Args:
+        last: Time period to show (e.g., 30m, 2h, 1d).
+        limit: Maximum number of events to show.
+        event_type: Optional filter by event type.
+
+    Raises:
+        typer.Exit: If the time format is invalid or an error occurs.
+    """
     # Parse time string
     time_str = last.lower()
     try:
@@ -406,8 +461,14 @@ def events(
 
 @app.command()
 def graph_stats() -> None:
-    """Show activity graph statistics."""
-    
+    """Show activity graph statistics.
+
+    Displays statistics about the activity graph including total nodes,
+    edges, clusters, density, node type breakdown, and most connected nodes.
+
+    Raises:
+        typer.Exit: If an error occurs while retrieving stats.
+    """
     try:
         graph = _get_graph()
         stats = graph.get_statistics()
@@ -445,7 +506,10 @@ def graph_stats() -> None:
 
 @app.command()
 def version() -> None:
-    """Show version information."""
+    """Show version information.
+
+    Prints the current version of Deja View to the console.
+    """
     console.print(f"Deja View v{__version__}")
 
 
@@ -453,11 +517,13 @@ def version() -> None:
 def main(
     ctx: typer.Context,
 ) -> None:
-    """
-    Deja View - Personal Background Agent OS
-    
+    """Deja View - Personal Background Agent OS.
+
     A privacy-first local daemon that continuously records, correlates,
     and explains your background digital activity.
+
+    Args:
+        ctx: Typer context object for command invocation.
     """
     pass
 

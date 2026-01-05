@@ -64,7 +64,14 @@ class NarrativeGenerator:
         self.logger = logging.getLogger("deja.reporting.narrative")
     
     def _format_duration(self, seconds: float) -> str:
-        """Format a duration in human-readable form."""
+        """Format a duration in human-readable form.
+
+        Args:
+            seconds: Duration in seconds to format.
+
+        Returns:
+            Human-readable duration string (e.g., "5 minutes", "2 hours, 30 minutes").
+        """
         if seconds < 60:
             return f"{int(seconds)} seconds"
         elif seconds < 3600:
@@ -75,13 +82,28 @@ class NarrativeGenerator:
             return f"{hours} hours, {minutes} minutes"
     
     def _format_time_range(self, start: datetime, end: datetime) -> str:
-        """Format a time range for display."""
+        """Format a time range for display.
+
+        Args:
+            start: Start datetime of the range.
+            end: End datetime of the range.
+
+        Returns:
+            Formatted time range string, showing only time for end if same day.
+        """
         if start.date() == end.date():
             return f"{start.strftime(self.TIME_FORMAT)} - {end.strftime('%H:%M')}"
         return f"{start.strftime(self.TIME_FORMAT)} - {end.strftime(self.TIME_FORMAT)}"
     
     def _get_file_summary(self, paths: List[str]) -> str:
-        """Summarize a list of file paths."""
+        """Summarize a list of file paths.
+
+        Args:
+            paths: List of file paths to summarize.
+
+        Returns:
+            Summary string describing file count and directory distribution.
+        """
         if not paths:
             return "no files"
         
@@ -99,7 +121,14 @@ class NarrativeGenerator:
         return f"{len(paths)} files across {len(dirs)} directories"
     
     def _generate_window_summary(self, window: ActivityWindow) -> str:
-        """Generate a summary for a single activity window."""
+        """Generate a summary for a single activity window.
+
+        Args:
+            window: ActivityWindow to summarize.
+
+        Returns:
+            Markdown-formatted summary string with time, duration, and events.
+        """
         task_desc = self.TASK_DESCRIPTIONS.get(
             window.task_label,
             "various activities"

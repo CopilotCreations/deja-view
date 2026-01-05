@@ -163,7 +163,14 @@ class TerminalCollector(BaseCollector):
         return base_cmd.lower() in self.IGNORE_COMMANDS
     
     def _create_command_event(self, cmd_info: Dict) -> Event:
-        """Create an event for a shell command."""
+        """Create an event for a shell command.
+        
+        Args:
+            cmd_info: Dictionary containing command, timestamp, and shell info.
+            
+        Returns:
+            Event object representing the shell command.
+        """
         command = cmd_info["command"]
         
         # Extract potential file paths from command
@@ -230,7 +237,11 @@ class TerminalCollector(BaseCollector):
             return []
     
     async def start(self) -> None:
-        """Initialize terminal collector state."""
+        """Initialize terminal collector state.
+        
+        Sets initial file positions to current end of each history file
+        so only new commands are captured going forward.
+        """
         # Set initial file positions to current end
         for shell, path in self.history_paths.items():
             if path.exists():
@@ -241,16 +252,21 @@ class TerminalCollector(BaseCollector):
                     pass
     
     async def stop(self) -> None:
-        """Clean up terminal collector."""
+        """Clean up terminal collector.
+        
+        Clears the seen commands cache and file position tracking.
+        """
         self._seen_commands.clear()
         self._file_positions.clear()
     
     async def collect(self) -> AsyncIterator[Event]:
-        """
-        Yield terminal command events.
+        """Yield terminal command events.
         
         Periodically checks history files for new commands
         and yields events for each new command.
+        
+        Yields:
+            Event objects for each new shell command detected.
         """
         while self._running:
             try:

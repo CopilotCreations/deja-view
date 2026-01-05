@@ -36,7 +36,11 @@ class BaseCollector(ABC):
     
     @property
     def is_running(self) -> bool:
-        """Check if the collector is currently running."""
+        """Check if the collector is currently running.
+        
+        Returns:
+            bool: True if the collector is running, False otherwise.
+        """
         return self._running
     
     def set_event_callback(self, callback: Callable[[Event], None]) -> None:
@@ -128,7 +132,11 @@ class BaseCollector(ABC):
         return self._task
     
     async def stop_task(self) -> None:
-        """Stop the collector task if running."""
+        """Stop the collector task if running.
+        
+        Cancels the running asyncio task and waits for it to complete.
+        Handles CancelledError gracefully.
+        """
         self._running = False
         if self._task and not self._task.done():
             self._task.cancel()

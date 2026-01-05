@@ -14,18 +14,33 @@ class TestEventDatabase:
     
     @pytest.fixture
     def database(self, test_config):
-        """Create a test database."""
+        """Create a test database.
+
+        Args:
+            test_config: Test configuration fixture with database path.
+
+        Yields:
+            EventDatabase: Connected database instance for testing.
+        """
         db = EventDatabase(test_config.database_path)
         db.connect()
         yield db
         db.close()
     
     def test_database_connection(self, database):
-        """Test database connection."""
+        """Test database connection.
+
+        Args:
+            database: The test database fixture.
+        """
         assert database._conn is not None
     
     def test_insert_event(self, database):
-        """Test inserting a single event."""
+        """Test inserting a single event.
+
+        Args:
+            database: The test database fixture.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -40,14 +55,24 @@ class TestEventDatabase:
         assert events[0].subject == "/path/to/file.py"
     
     def test_insert_multiple_events(self, database, sample_events):
-        """Test inserting multiple events."""
+        """Test inserting multiple events.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         count = database.insert_events(sample_events)
         
         assert count == len(sample_events)
         assert database.get_event_count() == len(sample_events)
     
     def test_get_events_in_range(self, database, sample_events):
-        """Test querying events by time range."""
+        """Test querying events by time range.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         now = datetime.now()
@@ -59,7 +84,12 @@ class TestEventDatabase:
         assert len(events) == len(sample_events)
     
     def test_get_events_by_type(self, database, sample_events):
-        """Test filtering events by type."""
+        """Test filtering events by type.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         now = datetime.now()
@@ -74,7 +104,12 @@ class TestEventDatabase:
         assert len(file_events) == 2
     
     def test_get_events_for_subject(self, database, sample_events):
-        """Test querying events by subject."""
+        """Test querying events by subject.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         events = database.get_events_for_subject("file1.py")
@@ -82,7 +117,12 @@ class TestEventDatabase:
         assert len(events) == 2  # CREATE and MODIFY
     
     def test_get_events_for_repository(self, database, sample_events):
-        """Test querying events by repository."""
+        """Test querying events by repository.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         events = database.get_events_for_repository("/path/to/repo")
@@ -90,7 +130,12 @@ class TestEventDatabase:
         assert len(events) == 2  # FILE_MODIFY and GIT_COMMIT
     
     def test_get_event_type_counts(self, database, sample_events):
-        """Test getting event type counts."""
+        """Test getting event type counts.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         counts = database.get_event_type_counts()
@@ -101,7 +146,12 @@ class TestEventDatabase:
         assert counts["browser.visit"] == 1
     
     def test_iter_events(self, database, sample_events):
-        """Test iterating over events."""
+        """Test iterating over events.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         count = 0
@@ -112,7 +162,11 @@ class TestEventDatabase:
         assert count == len(sample_events)
     
     def test_event_metadata_persistence(self, database):
-        """Test that metadata is preserved through storage."""
+        """Test that metadata is preserved through storage.
+
+        Args:
+            database: The test database fixture.
+        """
         event = Event(
             event_type=EventType.GIT_COMMIT,
             source="git",
@@ -127,7 +181,11 @@ class TestEventDatabase:
         assert events[0].metadata["files_changed"] == 5
     
     def test_empty_database(self, database):
-        """Test querying empty database."""
+        """Test querying empty database.
+
+        Args:
+            database: The test database fixture.
+        """
         events = database.get_recent_events()
         assert len(events) == 0
         
@@ -135,7 +193,12 @@ class TestEventDatabase:
         assert count == 0
     
     def test_get_events_with_sources_filter(self, database, sample_events):
-        """Test filtering events by source."""
+        """Test filtering events by source.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         now = datetime.now()
@@ -146,7 +209,12 @@ class TestEventDatabase:
         assert len(events) == len(sample_events)
     
     def test_get_event_count_with_time_range(self, database, sample_events):
-        """Test getting event count with time filters."""
+        """Test getting event count with time filters.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         now = datetime.now()
@@ -158,7 +226,12 @@ class TestEventDatabase:
         assert count == len(sample_events)
     
     def test_get_event_count_start_only(self, database, sample_events):
-        """Test getting event count with start time only."""
+        """Test getting event count with start time only.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         now = datetime.now()
@@ -167,7 +240,12 @@ class TestEventDatabase:
         assert count == len(sample_events)
     
     def test_get_event_count_end_only(self, database, sample_events):
-        """Test getting event count with end time only."""
+        """Test getting event count with end time only.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         now = datetime.now()
@@ -176,7 +254,12 @@ class TestEventDatabase:
         assert count == len(sample_events)
     
     def test_iter_events_with_time_range(self, database, sample_events):
-        """Test iterating events with time range."""
+        """Test iterating events with time range.
+
+        Args:
+            database: The test database fixture.
+            sample_events: List of sample Event objects for testing.
+        """
         database.insert_events(sample_events)
         
         now = datetime.now()
@@ -190,7 +273,11 @@ class TestEventDatabase:
         assert count == len(sample_events)
     
     def test_event_all_fields(self, database):
-        """Test event with all fields populated."""
+        """Test event with all fields populated.
+
+        Args:
+            database: The test database fixture.
+        """
         event = Event(
             event_type=EventType.BROWSER_VISIT,
             source="browser",

@@ -54,11 +54,23 @@ class ActivityGraph:
     
     @property
     def graph(self) -> nx.Graph:
-        """Get the underlying networkx graph."""
+        """Get the underlying networkx graph.
+        
+        Returns:
+            The underlying networkx Graph instance.
+        """
         return self._graph
     
     def _get_node_id(self, node_type: str, value: str) -> str:
-        """Generate a node ID from type and value."""
+        """Generate a node ID from type and value.
+        
+        Args:
+            node_type: The type of node (e.g., 'file', 'repo', 'url').
+            value: The value to use for the node ID.
+            
+        Returns:
+            A formatted node ID string with type prefix.
+        """
         prefix = self.NODE_TYPES.get(node_type, f"{node_type}:")
         # Truncate long values
         if len(value) > 200:
@@ -66,7 +78,14 @@ class ActivityGraph:
         return f"{prefix}{value}"
     
     def _extract_domain(self, url: str) -> Optional[str]:
-        """Extract domain from a URL."""
+        """Extract domain from a URL.
+        
+        Args:
+            url: The URL to extract the domain from.
+            
+        Returns:
+            The domain (netloc) portion of the URL, or None if extraction fails.
+        """
         try:
             from urllib.parse import urlparse
             return urlparse(url).netloc
@@ -74,14 +93,13 @@ class ActivityGraph:
             return None
     
     def add_event(self, event: Event) -> None:
-        """
-        Add a single event to the graph.
+        """Add a single event to the graph.
         
         Creates nodes for entities in the event and updates
         node attributes.
         
         Args:
-            event: Event to add
+            event: The Event instance to add to the graph.
         """
         # Determine node type and ID based on event
         node_id = None
@@ -149,14 +167,13 @@ class ActivityGraph:
                 self._graph.add_node(node_id, **node_attrs)
     
     def add_window(self, window: ActivityWindow) -> None:
-        """
-        Add events from an activity window and create edges.
+        """Add events from an activity window and create edges.
         
         Events in the same window are considered co-occurring,
         so edges are created between their corresponding nodes.
         
         Args:
-            window: Activity window to add
+            window: The ActivityWindow instance containing events to add.
         """
         # First add all events
         for event in window.events:
@@ -205,16 +222,18 @@ class ActivityGraph:
         max_depth: int = 2,
         min_weight: int = 1
     ) -> List[Tuple[str, int]]:
-        """
-        Get nodes related to a given node.
+        """Get nodes related to a given node.
+        
+        Traverses the graph up to max_depth edges away from the given node,
+        collecting nodes that meet the minimum weight threshold.
         
         Args:
-            node_id: Node to find relations for
-            max_depth: Maximum edge distance to search
-            min_weight: Minimum edge weight to consider
+            node_id: The node ID to find relations for.
+            max_depth: Maximum edge distance to search. Defaults to 2.
+            min_weight: Minimum edge weight to consider. Defaults to 1.
             
         Returns:
-            List of (node_id, total_weight) tuples
+            A list of (node_id, total_weight) tuples sorted by weight descending.
         """
         if node_id not in self._graph:
             return []
@@ -239,14 +258,15 @@ class ActivityGraph:
         return sorted(related.items(), key=lambda x: x[1], reverse=True)
     
     def find_node(self, query: str) -> List[str]:
-        """
-        Find nodes matching a query string.
+        """Find nodes matching a query string.
+        
+        Performs a case-insensitive substring search across all node IDs.
         
         Args:
-            query: String to search for in node IDs
+            query: The string to search for in node IDs.
             
         Returns:
-            List of matching node IDs
+            A list of node IDs that contain the query string.
         """
         query_lower = query.lower()
         matches = []
@@ -258,14 +278,14 @@ class ActivityGraph:
         return matches
     
     def get_node_info(self, node_id: str) -> Optional[Dict]:
-        """
-        Get information about a specific node.
+        """Get information about a specific node.
         
         Args:
-            node_id: Node ID to look up
+            node_id: The node ID to look up.
             
         Returns:
-            Node attributes dictionary or None
+            A dictionary containing the node's attributes including 'id' and
+            'degree', or None if the node does not exist.
         """
         if node_id in self._graph:
             info = dict(self._graph.nodes[node_id])
@@ -275,33 +295,32 @@ class ActivityGraph:
         return None
     
     def get_most_connected(self, limit: int = 10) -> List[Tuple[str, int]]:
-        """
-        Get the most connected nodes.
+        """Get the most connected nodes.
         
         Args:
-            limit: Maximum number of nodes to return
+            limit: Maximum number of nodes to return. Defaults to 10.
             
         Returns:
-            List of (node_id, degree) tuples
+            A list of (node_id, degree) tuples sorted by degree descending.
         """
         degrees = [(node, self._graph.degree(node)) for node in self._graph.nodes()]
         return sorted(degrees, key=lambda x: x[1], reverse=True)[:limit]
     
     def get_clusters(self) -> List[Set[str]]:
-        """
-        Get connected components (clusters) in the graph.
+        """Get connected components (clusters) in the graph.
         
         Returns:
-            List of sets of node IDs
+            A list of sets, where each set contains the node IDs of a
+            connected component.
         """
         return [set(c) for c in nx.connected_components(self._graph)]
     
     def get_statistics(self) -> Dict:
-        """
-        Get graph statistics.
+        """Get graph statistics.
         
         Returns:
-            Dictionary with graph statistics
+            A dictionary containing graph statistics including 'nodes', 'edges',
+            'clusters', 'density', and 'node_types'.
         """
         if self._graph.number_of_nodes() == 0:
             return {"nodes": 0, "edges": 0}
@@ -320,17 +339,23 @@ class ActivityGraph:
         }
     
     def save(self) -> None:
-        """Save the graph to disk."""
+        """Save the graph to disk.
+        
+        Persists the graph to the configured graph_path using pickle
+        serialization.
+        """
         with open(self.graph_path, "wb") as f:
             pickle.dump(self._graph, f)
         self.logger.info(f"Graph saved to {self.graph_path}")
     
     def load(self) -> bool:
-        """
-        Load the graph from disk.
+        """Load the graph from disk.
+        
+        Attempts to load a previously saved graph from the configured
+        graph_path using pickle deserialization.
         
         Returns:
-            True if loaded successfully, False otherwise
+            True if the graph was loaded successfully, False otherwise.
         """
         if not self.graph_path.exists():
             self.logger.info("No existing graph found")
@@ -346,5 +371,8 @@ class ActivityGraph:
             return False
     
     def clear(self) -> None:
-        """Clear the graph."""
+        """Clear the graph.
+        
+        Removes all nodes and edges from the graph.
+        """
         self._graph.clear()

@@ -99,7 +99,15 @@ class Event(BaseModel):
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert event to dictionary for storage."""
+        """Convert event to dictionary for storage.
+
+        Serializes the event to a dictionary with string representations
+        of complex types (UUID, EventType, datetime) for JSON compatibility.
+
+        Returns:
+            Dict[str, Any]: Dictionary representation of the event with
+                serialized id, event_type, and timestamp fields.
+        """
         data = self.model_dump()
         data["id"] = str(self.id)
         data["event_type"] = self.event_type.value
@@ -108,7 +116,18 @@ class Event(BaseModel):
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Event":
-        """Create event from dictionary."""
+        """Create event from dictionary.
+
+        Deserializes a dictionary (typically from JSON) back into an Event
+        instance, converting string representations to proper types.
+
+        Args:
+            data: Dictionary containing event data with string representations
+                of id, event_type, and timestamp fields.
+
+        Returns:
+            Event: A new Event instance populated from the dictionary data.
+        """
         if isinstance(data.get("id"), str):
             data["id"] = UUID(data["id"])
         if isinstance(data.get("event_type"), str):
@@ -118,11 +137,28 @@ class Event(BaseModel):
         return cls(**data)
     
     def __hash__(self) -> int:
-        """Allow events to be used in sets."""
+        """Allow events to be used in sets.
+
+        Computes a hash based on the event's unique ID, enabling
+        Event instances to be stored in sets and used as dictionary keys.
+
+        Returns:
+            int: Hash value derived from the event's UUID.
+        """
         return hash(self.id)
     
     def __eq__(self, other: object) -> bool:
-        """Check equality based on ID."""
+        """Check equality based on ID.
+
+        Two events are considered equal if they have the same UUID,
+        regardless of other field values.
+
+        Args:
+            other: Object to compare against.
+
+        Returns:
+            bool: True if other is an Event with the same id, False otherwise.
+        """
         if isinstance(other, Event):
             return self.id == other.id
         return False
@@ -154,16 +190,32 @@ class ActivityWindow(BaseModel):
     
     @property
     def duration_seconds(self) -> float:
-        """Get the duration of this window in seconds."""
+        """Get the duration of this window in seconds.
+
+        Returns:
+            float: The time span between start_time and end_time in seconds.
+        """
         return (self.end_time - self.start_time).total_seconds()
     
     @property
     def event_count(self) -> int:
-        """Get the number of events in this window."""
+        """Get the number of events in this window.
+
+        Returns:
+            int: The count of events contained in this activity window.
+        """
         return len(self.events)
     
     def add_event(self, event: Event) -> None:
-        """Add an event to this window."""
+        """Add an event to this window.
+
+        Appends the event to the window's event list and automatically
+        expands the window boundaries if the event's timestamp falls
+        outside the current start_time or end_time.
+
+        Args:
+            event: The Event instance to add to this window.
+        """
         self.events.append(event)
         # Expand window if needed
         if event.timestamp < self.start_time:
@@ -172,11 +224,32 @@ class ActivityWindow(BaseModel):
             self.end_time = event.timestamp
     
     def overlaps(self, other: "ActivityWindow") -> bool:
-        """Check if this window overlaps with another."""
+        """Check if this window overlaps with another.
+
+        Two windows overlap if there is any intersection between their
+        time ranges, including touching at boundaries.
+
+        Args:
+            other: Another ActivityWindow to check for overlap.
+
+        Returns:
+            bool: True if the windows have overlapping time ranges.
+        """
         return self.start_time <= other.end_time and self.end_time >= other.start_time
     
     def merge(self, other: "ActivityWindow") -> "ActivityWindow":
-        """Merge two overlapping windows."""
+        """Merge two overlapping windows.
+
+        Creates a new ActivityWindow that spans both windows and contains
+        all events from both. The original windows are not modified.
+
+        Args:
+            other: Another ActivityWindow to merge with this one.
+
+        Returns:
+            ActivityWindow: A new window spanning both input windows
+                with combined events.
+        """
         return ActivityWindow(
             start_time=min(self.start_time, other.start_time),
             end_time=max(self.end_time, other.end_time),

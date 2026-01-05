@@ -135,11 +135,25 @@ class InferenceEngine:
         return windows
     
     def _get_event_types(self, window: ActivityWindow) -> Set[EventType]:
-        """Get the set of event types in a window."""
+        """Get the set of event types in a window.
+
+        Args:
+            window: Activity window to analyze.
+
+        Returns:
+            Set of unique event types present in the window.
+        """
         return {event.event_type for event in window.events}
     
     def _get_process_names(self, window: ActivityWindow) -> Set[str]:
-        """Get the set of process names in a window."""
+        """Get the set of process names in a window.
+
+        Args:
+            window: Activity window to analyze.
+
+        Returns:
+            Set of lowercase process names from events in the window.
+        """
         names = set()
         for event in window.events:
             if event.process_name:
@@ -147,7 +161,15 @@ class InferenceEngine:
         return names
     
     def _count_event_type(self, window: ActivityWindow, event_type: EventType) -> int:
-        """Count events of a specific type in a window."""
+        """Count events of a specific type in a window.
+
+        Args:
+            window: Activity window to analyze.
+            event_type: The event type to count.
+
+        Returns:
+            Number of events matching the specified type.
+        """
         return sum(1 for e in window.events if e.event_type == event_type)
     
     def _extract_key_subjects(self, window: ActivityWindow) -> List[str]:

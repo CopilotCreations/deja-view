@@ -65,29 +65,52 @@ class FilesystemEventHandler(FileSystemEventHandler):
         self.event_queue = event_queue
     
     def _should_ignore(self, path: str) -> bool:
-        """Check if a path should be ignored."""
+        """Check if a path should be ignored based on ignore patterns.
+        
+        Args:
+            path: The file path to check.
+            
+        Returns:
+            True if the path matches any ignore pattern, False otherwise.
+        """
         for pattern in self.IGNORE_PATTERNS:
             if pattern in path:
                 return True
         return False
     
     def on_created(self, event: FileSystemEvent) -> None:
-        """Handle file creation events."""
+        """Handle file creation events.
+        
+        Args:
+            event: The filesystem event containing the created file path.
+        """
         if not event.is_directory and not self._should_ignore(event.src_path):
             self.event_queue.put(("create", event.src_path, None))
     
     def on_modified(self, event: FileSystemEvent) -> None:
-        """Handle file modification events."""
+        """Handle file modification events.
+        
+        Args:
+            event: The filesystem event containing the modified file path.
+        """
         if not event.is_directory and not self._should_ignore(event.src_path):
             self.event_queue.put(("modify", event.src_path, None))
     
     def on_deleted(self, event: FileSystemEvent) -> None:
-        """Handle file deletion events."""
+        """Handle file deletion events.
+        
+        Args:
+            event: The filesystem event containing the deleted file path.
+        """
         if not event.is_directory and not self._should_ignore(event.src_path):
             self.event_queue.put(("delete", event.src_path, None))
     
     def on_moved(self, event: FileSystemEvent) -> None:
-        """Handle file move events."""
+        """Handle file move events.
+        
+        Args:
+            event: The filesystem event containing source and destination paths.
+        """
         if not event.is_directory:
             if not self._should_ignore(event.src_path) and not self._should_ignore(event.dest_path):
                 self.event_queue.put(("move", event.src_path, event.dest_path))
@@ -170,7 +193,11 @@ class FilesystemCollector(BaseCollector):
         )
     
     async def start(self) -> None:
-        """Start the filesystem observer."""
+        """Start the filesystem observer.
+        
+        Initializes the watchdog observer and schedules monitoring
+        for all configured watch paths.
+        """
         self._handler = FilesystemEventHandler(self._event_queue)
         self._observer = Observer()
         
@@ -191,7 +218,10 @@ class FilesystemCollector(BaseCollector):
         self._observer.start()
     
     async def stop(self) -> None:
-        """Stop the filesystem observer."""
+        """Stop the filesystem observer.
+        
+        Stops the watchdog observer and waits for it to terminate.
+        """
         if self._observer:
             self._observer.stop()
             self._observer.join(timeout=5.0)

@@ -62,7 +62,11 @@ class Daemon:
         self._start_time: Optional[datetime] = None
     
     def _setup_logging(self) -> None:
-        """Configure logging for the daemon."""
+        """Configure logging for the daemon.
+        
+        Sets up both console and file handlers with a standard format.
+        The log level is determined by the configuration.
+        """
         log_level = getattr(logging, self.config.log_level.upper(), logging.INFO)
         
         # Create formatter
@@ -85,12 +89,18 @@ class Daemon:
         root_logger.addHandler(file_handler)
     
     def _write_pid_file(self) -> None:
-        """Write the PID file."""
+        """Write the current process ID to the PID file.
+        
+        The PID file location is determined by the configuration.
+        """
         self.config.pid_file.write_text(str(os.getpid()))
         self.logger.info(f"PID file written: {self.config.pid_file}")
     
     def _remove_pid_file(self) -> None:
-        """Remove the PID file."""
+        """Remove the PID file if it exists.
+        
+        Called during daemon shutdown to clean up.
+        """
         if self.config.pid_file.exists():
             self.config.pid_file.unlink()
             self.logger.info("PID file removed")
@@ -116,7 +126,12 @@ class Daemon:
             self.logger.error(f"Error handling event: {e}")
     
     def _init_collectors(self) -> None:
-        """Initialize all event collectors."""
+        """Initialize all event collectors.
+        
+        Attempts to initialize each collector type (filesystem, git, process,
+        terminal, browser). Failures are logged but do not prevent other
+        collectors from being initialized.
+        """
         # Filesystem collector
         try:
             fs_collector = FilesystemCollector()
@@ -190,7 +205,11 @@ class Daemon:
             )
     
     async def start(self) -> None:
-        """Start the daemon and all collectors."""
+        """Start the daemon and all collectors.
+        
+        Initializes the database, activity graph, inference engine, and
+        all collectors. Writes the PID file and sets the running state.
+        """
         # Ensure data directory exists
         self.config.ensure_data_dir()
         
@@ -221,7 +240,11 @@ class Daemon:
         self.logger.info("Daemon started successfully")
     
     async def run(self) -> None:
-        """Run the daemon main loop."""
+        """Run the daemon main loop.
+        
+        Starts all collectors and periodic tasks, then waits for them
+        to complete or be cancelled. Ensures proper cleanup on exit.
+        """
         await self.start()
         
         try:
@@ -243,7 +266,11 @@ class Daemon:
             await self.stop()
     
     async def stop(self) -> None:
-        """Stop the daemon and all collectors."""
+        """Stop the daemon and all collectors.
+        
+        Gracefully stops all collectors, saves the activity graph,
+        closes the database, and removes the PID file.
+        """
         self.logger.info("Stopping daemon...")
         self._running = False
         
@@ -275,24 +302,40 @@ class Daemon:
     
     @property
     def is_running(self) -> bool:
-        """Check if the daemon is running."""
+        """Check if the daemon is running.
+        
+        Returns:
+            True if the daemon is currently running, False otherwise.
+        """
         return self._running
     
     @property
     def uptime(self) -> Optional[float]:
-        """Get daemon uptime in seconds."""
+        """Get daemon uptime in seconds.
+        
+        Returns:
+            The uptime in seconds if the daemon has started, None otherwise.
+        """
         if self._start_time:
             return (datetime.now() - self._start_time).total_seconds()
         return None
     
     @property
     def event_count(self) -> int:
-        """Get the number of events collected."""
+        """Get the number of events collected.
+        
+        Returns:
+            The total count of events processed by this daemon instance.
+        """
         return self._event_count
 
 
 def run_daemon() -> None:
-    """Run the daemon in the foreground."""
+    """Run the daemon in the foreground.
+    
+    Creates a daemon instance, sets up signal handlers for graceful
+    shutdown, and runs the event loop until completion or interruption.
+    """
     daemon = Daemon()
     
     # Handle signals
@@ -316,7 +359,14 @@ def run_daemon() -> None:
 
 
 def get_daemon_pid() -> Optional[int]:
-    """Get the PID of a running daemon if any."""
+    """Get the PID of a running daemon if any.
+    
+    Reads the PID file and verifies the process is actually running.
+    Cleans up stale PID files if the process is no longer running.
+    
+    Returns:
+        The PID of the running daemon, or None if no daemon is running.
+    """
     config = get_config()
     if config.pid_file.exists():
         try:
@@ -335,5 +385,9 @@ def get_daemon_pid() -> Optional[int]:
 
 
 def is_daemon_running() -> bool:
-    """Check if the daemon is currently running."""
+    """Check if the daemon is currently running.
+    
+    Returns:
+        True if a daemon process is running, False otherwise.
+    """
     return get_daemon_pid() is not None

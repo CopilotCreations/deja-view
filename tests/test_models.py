@@ -13,7 +13,11 @@ class TestEvent:
     """Tests for the Event model."""
     
     def test_event_creation(self):
-        """Test basic event creation."""
+        """Test basic event creation.
+
+        Verifies that an Event can be created with minimal required fields
+        and that default values are properly set for optional fields.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -28,7 +32,11 @@ class TestEvent:
         assert event.confidence == 1.0
     
     def test_event_with_all_fields(self):
-        """Test event creation with all fields."""
+        """Test event creation with all fields.
+
+        Verifies that an Event can be created with all optional fields
+        including repository, branch, and metadata.
+        """
         event = Event(
             event_type=EventType.GIT_COMMIT,
             source="git",
@@ -44,7 +52,11 @@ class TestEvent:
         assert event.metadata == {"author": "test"}
     
     def test_event_to_dict(self):
-        """Test event serialization to dictionary."""
+        """Test event serialization to dictionary.
+
+        Verifies that an Event can be serialized to a dictionary format
+        with properly formatted string representations for id and timestamp.
+        """
         event = Event(
             event_type=EventType.FILE_MODIFY,
             source="filesystem",
@@ -60,7 +72,11 @@ class TestEvent:
         assert data["subject"] == "/path/to/file.py"
     
     def test_event_from_dict(self):
-        """Test event deserialization from dictionary."""
+        """Test event deserialization from dictionary.
+
+        Verifies that an Event can be reconstructed from a dictionary
+        representation with all fields properly parsed.
+        """
         data = {
             "id": "12345678-1234-5678-1234-567812345678",
             "event_type": "file.create",
@@ -78,7 +94,11 @@ class TestEvent:
         assert event.confidence == 0.9
     
     def test_event_equality(self):
-        """Test event equality based on ID."""
+        """Test event equality based on ID.
+
+        Verifies that Event equality is determined by the unique ID,
+        not by the event's content or other attributes.
+        """
         event1 = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -97,7 +117,11 @@ class TestEvent:
         assert event1 == event1
     
     def test_event_hash(self):
-        """Test event hashing for use in sets."""
+        """Test event hashing for use in sets.
+
+        Verifies that Events are hashable and can be used as elements
+        in sets and as dictionary keys.
+        """
         event = Event(
             event_type=EventType.FILE_CREATE,
             source="test",
@@ -113,7 +137,11 @@ class TestEventType:
     """Tests for EventType enum."""
     
     def test_all_event_types(self):
-        """Test that all expected event types exist."""
+        """Test that all expected event types exist.
+
+        Verifies that the EventType enum contains all expected event type
+        values for file, git, process, shell, and browser events.
+        """
         expected_types = [
             "file.create", "file.modify", "file.delete", "file.move",
             "git.commit", "git.branch_switch", "git.branch_create",
@@ -130,7 +158,11 @@ class TestActivityWindow:
     """Tests for the ActivityWindow model."""
     
     def test_window_creation(self):
-        """Test basic window creation."""
+        """Test basic window creation.
+
+        Verifies that an ActivityWindow can be created with start and end times
+        and that default values are properly set for event count and duration.
+        """
         now = datetime.now()
         window = ActivityWindow(
             start_time=now - timedelta(minutes=10),
@@ -141,7 +173,11 @@ class TestActivityWindow:
         assert window.duration_seconds == 600.0
     
     def test_add_event(self):
-        """Test adding events to a window."""
+        """Test adding events to a window.
+
+        Verifies that events can be added to an ActivityWindow and that
+        the window's time boundaries expand to include the event timestamp.
+        """
         now = datetime.now()
         window = ActivityWindow(
             start_time=now,
@@ -163,7 +199,11 @@ class TestActivityWindow:
         assert window.start_time == event.timestamp
     
     def test_window_overlap(self):
-        """Test window overlap detection."""
+        """Test window overlap detection.
+
+        Verifies that the overlaps method correctly identifies when two
+        ActivityWindows have overlapping time ranges.
+        """
         now = datetime.now()
         
         window1 = ActivityWindow(
@@ -185,7 +225,11 @@ class TestActivityWindow:
         assert not window1.overlaps(window3)  # No overlap
     
     def test_window_merge(self):
-        """Test merging overlapping windows."""
+        """Test merging overlapping windows.
+
+        Verifies that two overlapping ActivityWindows can be merged into
+        a single window that spans both time ranges and contains all events.
+        """
         now = datetime.now()
         
         event1 = Event(

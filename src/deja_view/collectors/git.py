@@ -181,7 +181,16 @@ class GitCollector(BaseCollector):
         return commits
     
     def _create_commit_event(self, repo_path: str, branch: str, commit: Dict) -> Event:
-        """Create an event for a git commit."""
+        """Create an event for a git commit.
+        
+        Args:
+            repo_path: Path to the repository as a string.
+            branch: The branch name where the commit occurred.
+            commit: Dictionary containing commit details (hash, message, author, time).
+            
+        Returns:
+            Event object representing the git commit.
+        """
         return Event(
             event_type=EventType.GIT_COMMIT,
             source=self.name,
@@ -202,7 +211,16 @@ class GitCollector(BaseCollector):
         old_branch: Optional[str],
         new_branch: str
     ) -> Event:
-        """Create an event for a branch switch."""
+        """Create an event for a branch switch.
+        
+        Args:
+            repo_path: Path to the repository as a string.
+            old_branch: The previous branch name, or None if unknown.
+            new_branch: The new branch name that was switched to.
+            
+        Returns:
+            Event object representing the branch switch.
+        """
         return Event(
             event_type=EventType.GIT_BRANCH_SWITCH,
             source=self.name,
@@ -217,7 +235,11 @@ class GitCollector(BaseCollector):
         )
     
     async def start(self) -> None:
-        """Initialize git collector state."""
+        """Initialize git collector state.
+        
+        Performs an initial scan of watched directories to discover git
+        repositories and capture their current state.
+        """
         # Initial scan of repositories
         repos = self._find_repositories()
         for repo in repos:
@@ -228,16 +250,21 @@ class GitCollector(BaseCollector):
         self.logger.info(f"Found {len(repos)} git repositories")
     
     async def stop(self) -> None:
-        """Clean up git collector."""
+        """Clean up git collector.
+        
+        Clears all tracked repository states and known repositories.
+        """
         self._repo_states.clear()
         self._known_repos.clear()
     
     async def collect(self) -> AsyncIterator[Event]:
-        """
-        Yield git events as repositories change.
+        """Yield git events as repositories change.
         
         Periodically polls repositories for changes and yields
         events for new commits, branch switches, etc.
+        
+        Yields:
+            Event objects for detected git activity (commits, branch switches).
         """
         while self._running:
             try:

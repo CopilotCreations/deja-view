@@ -14,7 +14,16 @@ from pydantic import BaseModel, Field
 
 
 def get_default_data_dir() -> Path:
-    """Get the default data directory based on platform."""
+    """Get the default data directory based on platform.
+
+    Returns platform-specific application data directories:
+    - macOS: ~/Library/Application Support/deja.
+    - Windows: %APPDATA%/deja.
+    - Linux: ~/.deja.
+
+    Returns:
+        Path: The default data directory path for the current platform.
+    """
     home = Path.home()
     if platform.system() == "Darwin":
         return home / "Library" / "Application Support" / "deja.
@@ -25,7 +34,14 @@ def get_default_data_dir() -> Path:
 
 
 def get_default_watch_paths() -> List[Path]:
-    """Get default paths to watch for filesystem events."""
+    """Get default paths to watch for filesystem events.
+
+    Includes the home directory and common development directories
+    (Documents, Projects, Code, Development, src) if they exist.
+
+    Returns:
+        List[Path]: List of existing paths to monitor for file changes.
+    """
     home = Path.home()
     paths = [home]
     
@@ -38,7 +54,17 @@ def get_default_watch_paths() -> List[Path]:
 
 
 def get_chrome_history_path() -> Optional[Path]:
-    """Get Chrome history database path based on platform."""
+    """Get Chrome history database path based on platform.
+
+    Returns platform-specific Chrome history database locations:
+    - macOS: ~/Library/Application Support/Google/Chrome/Default/History
+    - Windows: %LOCALAPPDATA%/Google/Chrome/User Data/Default/History
+    - Linux: ~/.config/google-chrome/Default/History
+
+    Returns:
+        Optional[Path]: Path to the Chrome history database if it exists,
+            None otherwise.
+    """
     home = Path.home()
     system = platform.system()
     
@@ -54,7 +80,18 @@ def get_chrome_history_path() -> Optional[Path]:
 
 
 def get_firefox_history_path() -> Optional[Path]:
-    """Get Firefox history database path based on platform."""
+    """Get Firefox history database path based on platform.
+
+    Searches for the places.sqlite database within Firefox profile
+    directories at platform-specific locations:
+    - macOS: ~/Library/Application Support/Firefox/Profiles
+    - Windows: %APPDATA%/Mozilla/Firefox/Profiles
+    - Linux: ~/.mozilla/firefox
+
+    Returns:
+        Optional[Path]: Path to the Firefox places.sqlite database if found,
+            None otherwise.
+    """
     home = Path.home()
     system = platform.system()
     
@@ -80,7 +117,16 @@ def get_firefox_history_path() -> Optional[Path]:
 
 
 def get_shell_history_paths() -> dict:
-    """Get shell history file paths."""
+    """Get shell history file paths.
+
+    Checks for the existence of common shell history files
+    (~/.bash_history and ~/.zsh_history).
+
+    Returns:
+        dict: Dictionary mapping shell names ('bash', 'zsh') to their
+            history file paths. Only includes shells with existing
+            history files.
+    """
     home = Path.home()
     paths = {}
     
@@ -126,32 +172,68 @@ class Config(BaseModel):
     pid_file: Path = Field(default=None)
     
     def model_post_init(self, __context) -> None:
-        """Initialize derived fields after model creation."""
+        """Initialize derived fields after model creation.
+
+        Sets the pid_file path to data_dir/deja.pid if not explicitly provided.
+
+        Args:
+            __context: Pydantic validation context (unused).
+        """
         if self.pid_file is None:
             self.pid_file = self.data_dir / "deja.pid"
     
     @property
     def database_path(self) -> Path:
-        """Path to the DuckDB database file."""
+        """Path to the DuckDB database file.
+
+        Returns:
+            Path: The path to events.duckdb within the data directory.
+        """
         return self.data_dir / "events.duckdb"
     
     @property
     def graph_path(self) -> Path:
-        """Path to the activity graph file."""
+        """Path to the activity graph file.
+
+        Returns:
+            Path: The path to activity_graph.gpickle within the data directory.
+        """
         return self.data_dir / "activity_graph.gpickle"
     
     @property
     def log_path(self) -> Path:
-        """Path to the log file."""
+        """Path to the log file.
+
+        Returns:
+            Path: The path to deja.log within the data directory.
+        """
         return self.data_dir / "deja.log"
     
     def ensure_data_dir(self) -> None:
-        """Create the data directory if it doesn't exist."""
+        """Create the data directory if it doesn't exist.
+
+        Creates the data directory and any necessary parent directories.
+        """
         self.data_dir.mkdir(parents=True, exist_ok=True)
     
     @classmethod
     def from_env(cls) -> "Config":
-        """Create configuration from environment variables."""
+        """Create configuration from environment variables.
+
+        Reads configuration from environment variables with the DEJA_ prefix:
+        - DEJA_DATA_DIR: Data directory path
+        - DEJA_LOG_LEVEL: Logging level
+        - DEJA_PROCESS_POLL_INTERVAL: Process polling interval in seconds
+        - DEJA_SHELL_HISTORY_POLL_INTERVAL: Shell history polling interval
+        - DEJA_BROWSER_POLL_INTERVAL: Browser history polling interval
+        - DEJA_ACTIVITY_WINDOW_MINUTES: Activity analysis window size
+        - DEJA_WATCH_PATHS: Comma-separated list of paths to monitor
+        - DEJA_CHROME_HISTORY_PATH: Custom Chrome history path
+        - DEJA_FIREFOX_HISTORY_PATH: Custom Firefox history path
+
+        Returns:
+            Config: Configuration instance with environment overrides applied.
+        """
         kwargs = {}
         
         if data_dir := os.environ.get("DEJA_DATA_DIR"):
@@ -189,7 +271,14 @@ _config: Optional[Config] = None
 
 
 def get_config() -> Config:
-    """Get the global configuration instance."""
+    """Get the global configuration instance.
+
+    Creates a new configuration from environment variables if one
+    hasn't been set yet.
+
+    Returns:
+        Config: The global configuration instance.
+    """
     global _config
     if _config is None:
         _config = Config.from_env()
@@ -197,6 +286,10 @@ def get_config() -> Config:
 
 
 def set_config(config: Config) -> None:
-    """Set the global configuration instance."""
+    """Set the global configuration instance.
+
+    Args:
+        config: The configuration instance to use globally.
+    """
     global _config
     _config = config

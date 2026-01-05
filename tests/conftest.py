@@ -13,7 +13,14 @@ from deja_view.config import Config, set_config
 
 @pytest.fixture
 def temp_data_dir():
-    """Create a temporary data directory for tests."""
+    """Create a temporary data directory for tests.
+
+    Yields:
+        Path: The path to the temporary directory.
+
+    Note:
+        Cleanup is best-effort as Windows may have file locks.
+    """
     tmpdir = tempfile.mkdtemp()
     yield Path(tmpdir)
     # Best-effort cleanup (Windows may have file locks)
@@ -25,7 +32,14 @@ def temp_data_dir():
 
 @pytest.fixture
 def test_config(temp_data_dir):
-    """Create a test configuration."""
+    """Create a test configuration.
+
+    Args:
+        temp_data_dir: Fixture providing a temporary data directory.
+
+    Returns:
+        Config: A configured Config instance for testing.
+    """
     config = Config(
         data_dir=temp_data_dir,
         log_level="DEBUG",
@@ -41,7 +55,13 @@ def test_config(temp_data_dir):
 
 @pytest.fixture
 def sample_events():
-    """Create sample events for testing."""
+    """Create sample events for testing.
+
+    Returns:
+        list[Event]: A list of sample Event objects covering various event types
+            including file operations, git commits, browser visits, shell commands,
+            and process starts.
+    """
     from datetime import datetime, timedelta
     from deja_view.models import Event, EventType
     
